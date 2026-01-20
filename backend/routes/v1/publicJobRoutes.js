@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const publicJobController = require('../controllers/publicJobController');
+const publicJobController = require('@/controllers/publicJobController');
 
 // Public job routes (no authentication required)
 router.get('/jobs', publicJobController.getPublicJobs);

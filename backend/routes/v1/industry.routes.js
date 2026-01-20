@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Industry } = require('../models');
-const createFilterController = require('../controllers/filter.controller');
+const { Industry } = require('@/models');
+const createFilterController = require('@/controllers/filter.controller');
 
 const industryController = createFilterController(Industry, 'Industry');
 

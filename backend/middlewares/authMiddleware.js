@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models').User; // Use Sequelize User model
+const User = require('@/models').User; // Use Sequelize User model
 const dotenv = require('dotenv');
 
 dotenv.config();
