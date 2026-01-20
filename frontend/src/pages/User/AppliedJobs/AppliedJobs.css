@@ -1,0 +1,137 @@
+.applied-jobs-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    color: var(--dark, #0f172a);
+    margin-bottom: 12px;
+}
+
+.page-header p {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+.applications-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.application-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.application-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: rgba(79, 70, 229, 0.1);
+}
+
+.app-job-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--primary, #4f46e5);
+}
+
+.app-details {
+    flex: 1;
+}
+
+.app-details h3 {
+    margin: 0 0 6px 0;
+    color: var(--dark, #0f172a);
+    font-size: 1.2rem;
+}
+
+.app-company {
+    color: var(--gray, #64748b);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.app-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.status-badge {
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-badge.pending {
+    background: #fff7ed;
+    color: #f97316;
+}
+
+.status-badge.reviewed {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.status-badge.rejected {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.status-badge.interview {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px;
+    background: white;
+    border-radius: 16px;
+    color: #64748b;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #cbd5e1;
+}
+
+@media (max-width: 640px) {
+    .application-card {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .app-status {
+        align-self: flex-start;
+        margin-top: 10px;
+    }
+}

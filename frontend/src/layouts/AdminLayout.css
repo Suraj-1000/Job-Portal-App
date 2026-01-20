@@ -1,0 +1,224 @@
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #2d3436 0%, #000000 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 0 24px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.sidebar-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(90deg, #0984e3, #6c5ce7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0 10px;
+}
+
+.nav-item {
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #b2bec3;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateX(5px);
+}
+
+.nav-icon {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+}
+
+/* Main Content */
+.admin-main {
+    flex: 1;
+    margin-left: 260px;
+    /* Width of sidebar */
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    /* Prevent flex overflow */
+}
+
+.admin-header {
+    background: white;
+    height: 64px;
+    padding: 0 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    cursor: pointer;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    background: #6c5ce7;
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: box-shadow 0.2s;
+}
+
+.user-avatar:hover {
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+}
+
+/* Profile Dropdown */
+.profile-dropdown {
+    position: absolute;
+    top: 120%;
+    right: 0;
+    background: white;
+    min-width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 8px 0;
+    transform-origin: top right;
+    animation: dropdownSlide 0.2s ease-out;
+    border: 1px solid #f1f2f6;
+    z-index: 100;
+}
+
+@keyframes dropdownSlide {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.dropdown-item {
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #2d3436;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background: #f5f6fa;
+    color: #6c5ce7;
+}
+
+.dropdown-item.danger {
+    color: #e17055;
+    border-top: 1px solid #f1f2f6;
+    margin-top: 5px;
+    padding-top: 12px;
+}
+
+.dropdown-item.danger:hover {
+    background: #fff5f5;
+    color: #d63031;
+}
+
+.admin-content {
+    padding: 30px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Dashboard Cards Grid (Common style) */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #6c5ce7;
+}
+
+.stat-card h3 {
+    margin: 0 0 10px;
+    color: #636e72;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card .value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3436;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .admin-main {
+        margin-left: 0;
+    }
+}

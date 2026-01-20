@@ -1,0 +1,76 @@
+.favorites-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+}
+
+.header-icon {
+    color: #ef4444;
+    margin-right: 12px;
+}
+
+.favorites-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 30px;
+}
+
+.btn-browse {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--primary, #4f46e5);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 20px;
+    transition: all 0.2s;
+}
+
+.btn-browse:hover {
+    background: var(--primary-dark, #4338ca);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+}
+
+/* Inherits generic classes like page-header, empty-state, loading-state from previous styles if global, 
+   but for safety we can duplicate or assume they are scoped. 
+   Since we used CSS Modules-ish approach (import './X.css'), they are global but namespaced by parent class usually.
+   Here I'll duplicate the critical ones just in case. */
+
+.loading-state {
+    text-align: center;
+    padding: 60px;
+}
+
+.spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e2e8f0;
+    border-top-color: var(--primary, #4f46e5);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 16px;
+    border: 2px dashed #e2e8f0;
+}
+
+.empty-state h3 {
+    margin: 20px 0 10px;
+    font-size: 1.5rem;
+    color: var(--dark, #0f172a);
+}
+
+.empty-state p {
+    color: #64748b;
+    max-width: 400px;
+    margin: 0 auto;
+}

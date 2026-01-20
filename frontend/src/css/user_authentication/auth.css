@@ -1,0 +1,290 @@
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  padding: 0;
+  position: relative;
+}
+
+.auth-container .auth-card {
+  margin: auto;
+  flex: 0 0 auto;
+}
+
+.auth-card {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+  width: 100%;
+  max-width: 400px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.auth-card h2 {
+  text-align: center;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.auth-card .system-name {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #667eea;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.form-row>* {
+  flex: 1;
+  margin-bottom: 0 !important;
+  /* Override inner margins if any */
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.auth-card button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.auth-card button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.auth-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border: 1px solid #fcc;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+}
+
+.auth-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.auth-link a:hover {
+  color: #764ba2;
+}
+
+.auth-link a:hover {
+  text-decoration: underline;
+}
+
+/* Login Method Toggle */
+.login-method-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  background: #f7fafc;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.method-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s;
+}
+
+.method-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.method-btn:hover:not(.active) {
+  background: #e2e8f0;
+}
+
+/* OTP Input Group */
+.otp-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.otp-input-group input {
+  flex: 1;
+}
+
+.btn-send-otp {
+  padding: 12px 20px;
+  background: #48bb78;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.3s;
+}
+
+.btn-send-otp:hover:not(:disabled) {
+  background: #38a169;
+}
+
+.btn-send-otp:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.otp-hint {
+  display: block;
+  margin-top: 5px;
+  color: #48bb78;
+  font-size: 12px;
+}
+
+/* Auth Links */
+.auth-links {
+  margin-top: 20px;
+}
+
+.auth-links .auth-link {
+  margin: 10px 0;
+}
+
+/* Forgot Password */
+.forgot-password-text {
+  text-align: center;
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-secondary {
+  flex: 1;
+  padding: 12px;
+  background: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e0;
+}
+
+.btn-resend-otp {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: #667eea;
+  border: 1px solid #667eea;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+
+.btn-resend-otp:hover:not(:disabled) {
+  background: #667eea;
+  color: white;
+}
+
+.btn-resend-otp:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 30px 20px;
+  }
+
+  .otp-input-group {
+    flex-direction: column;
+  }
+
+  .btn-send-otp {
+    width: 100%;
+  }
+}
