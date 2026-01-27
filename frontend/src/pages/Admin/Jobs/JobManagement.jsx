@@ -56,21 +56,18 @@ const JobManagement = () => {
         }
     };
 
-    const handleSave = async () => {
-        if (!currentJob.title || !currentJob.categoryId) {
-            toast.warning('Job Title and Category are required');
-            return;
-        }
-
+    const handleSave = async (jobData) => {
         try {
-            const jobData = { ...currentJob };
-            jobData.openings = parseInt(jobData.openings) || 1;
+            // Processing openings to ensure it's a number (react-hook-form handles number inputs as strings sometimes if not coerced)
+            // But we used type="number" and Joi.number(), so it should be fine or Joi will handle validation. 
+            // However, ensure it's an integer before sending if API expects it.
+            const payload = { ...jobData, openings: parseInt(jobData.openings) || 1 };
 
             if (isEditing) {
-                await axios.put(`http://localhost:5000/api/jobs/${currentJob.id}`, jobData);
+                await axios.put(`http://localhost:5000/api/jobs/${currentJob.id}`, payload);
                 toast.success('Job updated successfully');
             } else {
-                await axios.post('http://localhost:5000/api/jobs', jobData);
+                await axios.post('http://localhost:5000/api/jobs', payload);
                 toast.success('Job created successfully');
             }
             fetchJobs();
@@ -145,8 +142,6 @@ const JobManagement = () => {
         setShowModal(false);
     };
 
-
-
     const filteredJobs = jobs.filter(job =>
         job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         job.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -197,7 +192,6 @@ const JobManagement = () => {
                 categories={categories}
                 onClose={handleCloseModal}
                 onSave={handleSave}
-                onChange={setCurrentJob}
             />
 
             <DeleteConfirmationModal

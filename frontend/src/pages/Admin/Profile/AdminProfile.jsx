@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useForm, Controller } from 'react-hook-form';
+import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from 'joi';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../context/AuthContext';
-import { joiValidator } from '../../../utils/joiValidator';
-import InputField from '../../../components/InputField/InputField';
+import FormInput from '../../../components/FormInput/FormInput';
 import PasswordInput from '../../../components/PasswordInput/PasswordInput';
 
 const AdminProfile = ({ activeTab = 'profile' }) => {
@@ -15,7 +15,7 @@ const AdminProfile = ({ activeTab = 'profile' }) => {
         setTab(activeTab);
     }, [activeTab]);
 
-    // Update Profile Logic
+    // Schemas
     const profileSchema = Joi.object({
         firstName: Joi.string().required().label('First Name'),
         lastName: Joi.string().required().label('Last Name'),
@@ -25,7 +25,56 @@ const AdminProfile = ({ activeTab = 'profile' }) => {
         dateOfBirth: Joi.date().allow('').optional().label('Date of Birth'),
     });
 
-    const handleUpdateProfile = async (values, { setSubmitting }) => {
+    const passwordSchema = Joi.object({
+        password: Joi.string().min(6).required().label('New Password'),
+        confirmPassword: Joi.string().valid(Joi.ref('password')).required().label('Confirm Password').messages({
+            'any.only': 'Passwords do not match',
+        }),
+    });
+
+    // Forms
+    const {
+        register: registerProfile,
+        handleSubmit: handleSubmitProfile,
+        reset: resetProfile,
+        formState: { errors: errorsProfile, isSubmitting: isSubmittingProfile }
+    } = useForm({
+        resolver: joiResolver(profileSchema),
+        defaultValues: {
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            gender: '',
+            dateOfBirth: ''
+        }
+    });
+
+    const {
+        control: controlPassword,
+        handleSubmit: handleSubmitPassword,
+        reset: resetPassword,
+        formState: { errors: errorsPassword, isSubmitting: isSubmittingPassword }
+    } = useForm({
+        resolver: joiResolver(passwordSchema)
+    });
+
+    // Reset profile form when user data is available
+    useEffect(() => {
+        if (user) {
+            resetProfile({
+                firstName: user.firstName || '',
+                lastName: user.lastName || '',
+                email: user.email || '',
+                phone: user.phone || '',
+                gender: user.gender || '',
+                dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : ''
+            });
+        }
+    }, [user, resetProfile]);
+
+    // Handlers
+    const handleUpdateProfile = async (values) => {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:5000/api/users/${user.id}`, {
@@ -41,26 +90,15 @@ const AdminProfile = ({ activeTab = 'profile' }) => {
 
             if (!response.ok) throw new Error(data.message || 'Failed to update profile');
 
-            // Update local user context (if you have a way to refresh or just manually update)
-            // Assuming login() can update user data without new token if token passed is same/null
+            // Update local user context
             login(data, token);
             toast.success('Profile updated successfully');
         } catch (error) {
             toast.error(error.message);
-        } finally {
-            setSubmitting(false);
         }
     };
 
-    // Change Password Logic
-    const passwordSchema = Joi.object({
-        password: Joi.string().min(6).required().label('New Password'),
-        confirmPassword: Joi.any().valid(Joi.ref('password')).required().label('Confirm Password').messages({
-            'any.only': 'Passwords do not match',
-        }),
-    });
-
-    const handleChangePassword = async (values, { setSubmitting, resetForm }) => {
+    const handleChangePassword = async (values) => {
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(`http://localhost:5000/api/users/${user.id}`, {
@@ -77,11 +115,9 @@ const AdminProfile = ({ activeTab = 'profile' }) => {
             if (!response.ok) throw new Error(data.message || 'Failed to update password');
 
             toast.success('Password changed successfully');
-            resetForm();
+            resetPassword();
         } catch (error) {
             toast.error(error.message);
-        } finally {
-            setSubmitting(false);
         }
     };
 
@@ -122,89 +158,98 @@ const AdminProfile = ({ activeTab = 'profile' }) => {
 
             <div style={{ background: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
                 {tab === 'profile' && (
-                    <Formik
-                        initialValues={{
-                            firstName: user?.firstName || '',
-                            lastName: user?.lastName || '',
-                            email: user?.email || '',
-                            phone: user?.phone || '',
-                            gender: user?.gender || '',
-                            dateOfBirth: user?.dateOfBirth || ''
-                        }}
-                        enableReinitialize
-                        validate={joiValidator(profileSchema)}
-                        onSubmit={handleUpdateProfile}
-                    >
-                        {({ isSubmitting }) => (
-                            <Form>
-                                <InputField label="First Name" name="firstName" placeholder="First Name" />
-                                <InputField label="Last Name" name="lastName" placeholder="Last Name" />
-                                <InputField label="Email" name="email" type="email" placeholder="Email" />
-                                <InputField label="Phone" name="phone" placeholder="Phone Number" />
+                    <form onSubmit={handleSubmitProfile(handleUpdateProfile)}>
+                        <FormInput
+                            label="First Name"
+                            placeholder="First Name"
+                            error={errorsProfile.firstName}
+                            {...registerProfile('firstName')}
+                        />
+                        <FormInput
+                            label="Last Name"
+                            placeholder="Last Name"
+                            error={errorsProfile.lastName}
+                            {...registerProfile('lastName')}
+                        />
+                        <FormInput
+                            label="Email"
+                            type="email"
+                            placeholder="Email"
+                            error={errorsProfile.email}
+                            {...registerProfile('email')}
+                        />
+                        <FormInput
+                            label="Phone"
+                            placeholder="Phone Number"
+                            error={errorsProfile.phone}
+                            {...registerProfile('phone')}
+                        />
 
-                                <div className="form-group">
-                                    <label>Gender</label>
-                                    <Field as="select" name="gender" className="form-input">
-                                        <option value="">Select Gender</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Others">Others</option>
-                                    </Field>
-                                    <ErrorMessage name="gender" component="div" className="error-message inline" />
-                                </div>
+                        <div className="form-group">
+                            <label>Gender</label>
+                            <select
+                                className={`form-input ${errorsProfile.gender ? 'is-invalid' : ''}`}
+                                {...registerProfile('gender')}
+                            >
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Others">Others</option>
+                            </select>
+                            {errorsProfile.gender && <div className="error-message inline">{errorsProfile.gender.message}</div>}
+                        </div>
 
-                                <InputField label="Date of Birth" name="dateOfBirth" type="date" />
+                        <FormInput
+                            label="Date of Birth"
+                            type="date"
+                            error={errorsProfile.dateOfBirth}
+                            {...registerProfile('dateOfBirth')}
+                        />
 
-                                <button type="submit" disabled={isSubmitting} className="btn-primary" style={{ marginTop: '20px' }}>
-                                    {isSubmitting ? 'Updating...' : 'Save Changes'}
-                                </button>
-                            </Form>
-                        )}
-                    </Formik>
+                        <button type="submit" disabled={isSubmittingProfile} className="btn-primary" style={{ marginTop: '20px' }}>
+                            {isSubmittingProfile ? 'Updating...' : 'Save Changes'}
+                        </button>
+                    </form>
                 )}
 
                 {tab === 'password' && (
-                    <Formik
-                        initialValues={{ password: '', confirmPassword: '' }}
-                        validate={joiValidator(passwordSchema)}
-                        onSubmit={handleChangePassword}
-                    >
-                        {({ isSubmitting }) => (
-                            <Form>
-                                <div className="form-group">
-                                    <label>New Password</label>
-                                    <Field name="password">
-                                        {({ field, meta }) => (
-                                            <PasswordInput
-                                                {...field}
-                                                placeholder="New Password"
-                                                className={meta.touched && meta.error ? 'is-invalid' : ''}
-                                            />
-                                        )}
-                                    </Field>
-                                    <ErrorMessage name="password" component="div" className="error-message inline" />
-                                </div>
+                    <form onSubmit={handleSubmitPassword(handleChangePassword)}>
+                        <div className="form-group">
+                            <label>New Password</label>
+                            <Controller
+                                name="password"
+                                control={controlPassword}
+                                render={({ field }) => (
+                                    <PasswordInput
+                                        {...field}
+                                        placeholder="New Password"
+                                        className={errorsPassword.password ? 'is-invalid' : ''}
+                                    />
+                                )}
+                            />
+                            {errorsPassword.password && <div className="error-message inline">{errorsPassword.password.message}</div>}
+                        </div>
 
-                                <div className="form-group">
-                                    <label>Confirm Password</label>
-                                    <Field name="confirmPassword">
-                                        {({ field, meta }) => (
-                                            <PasswordInput
-                                                {...field}
-                                                placeholder="Confirm Password"
-                                                className={meta.touched && meta.error ? 'is-invalid' : ''}
-                                            />
-                                        )}
-                                    </Field>
-                                    <ErrorMessage name="confirmPassword" component="div" className="error-message inline" />
-                                </div>
+                        <div className="form-group">
+                            <label>Confirm Password</label>
+                            <Controller
+                                name="confirmPassword"
+                                control={controlPassword}
+                                render={({ field }) => (
+                                    <PasswordInput
+                                        {...field}
+                                        placeholder="Confirm Password"
+                                        className={errorsPassword.confirmPassword ? 'is-invalid' : ''}
+                                    />
+                                )}
+                            />
+                            {errorsPassword.confirmPassword && <div className="error-message inline">{errorsPassword.confirmPassword.message}</div>}
+                        </div>
 
-                                <button type="submit" disabled={isSubmitting} className="btn-primary" style={{ marginTop: '20px' }}>
-                                    {isSubmitting ? 'Updating...' : 'Change Password'}
-                                </button>
-                            </Form>
-                        )}
-                    </Formik>
+                        <button type="submit" disabled={isSubmittingPassword} className="btn-primary" style={{ marginTop: '20px' }}>
+                            {isSubmittingPassword ? 'Updating...' : 'Change Password'}
+                        </button>
+                    </form>
                 )}
             </div>
         </div>

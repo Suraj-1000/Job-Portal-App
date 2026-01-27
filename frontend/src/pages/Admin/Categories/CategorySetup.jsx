@@ -40,18 +40,18 @@ const CategorySetup = () => {
         }
     };
 
-    const handleSave = async () => {
-        if (!currentItem.name.trim()) {
+    const handleSave = async (formData) => {
+        if (!formData.name.trim()) {
             toast.warning('Name is required');
             return;
         }
 
         try {
             if (isEditing) {
-                await axios.put(`http://localhost:5000${currentTabConfig.endpoint}/${currentItem.id}`, currentItem);
+                await axios.put(`http://localhost:5000${currentTabConfig.endpoint}/${currentItem.id}`, { ...currentItem, ...formData });
                 toast.success(`${currentTabConfig.label.slice(0, -1)} updated successfully`);
             } else {
-                await axios.post(`http://localhost:5000${currentTabConfig.endpoint}`, currentItem);
+                await axios.post(`http://localhost:5000${currentTabConfig.endpoint}`, formData);
                 toast.success(`${currentTabConfig.label.slice(0, -1)} created successfully`);
             }
             fetchData();
@@ -168,7 +168,6 @@ const CategorySetup = () => {
                 currentItem={currentItem}
                 onClose={handleCloseModal}
                 onSave={handleSave}
-                onChange={setCurrentItem}
                 entityName={currentTabConfig.label.slice(0, -1)}
             />
 

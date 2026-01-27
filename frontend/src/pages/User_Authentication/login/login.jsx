@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../context/AuthContext.jsx';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useForm, Controller } from 'react-hook-form';
+import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from 'joi';
-import { joiValidator } from '../../../utils/joiValidator';
-import InputField from '../../../components/InputField/InputField.jsx';
+import FormInput from '../../../components/FormInput/FormInput.jsx';
 import PasswordInput from '../../../components/PasswordInput/PasswordInput.jsx';
 import '../../../css/user_authentication/auth.css';
 
 const Login = () => {
-  const [error, setError] = useState('');
+  const [serverError, setServerError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -19,8 +19,21 @@ const Login = () => {
     password: Joi.string().min(6).required().label('Password'),
   });
 
-  const handleSubmit = async (values, { setSubmitting }) => {
-    setError('');
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: joiResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = async (values) => {
+    setServerError('');
 
     try {
       const response = await fetch('http://localhost:5000/login', {
@@ -50,10 +63,8 @@ const Login = () => {
         navigate('/user/home');
       }
     } catch (err) {
-      setError(err.message);
+      setServerError(err.message);
       toast.error(err.message);
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -61,46 +72,42 @@ const Login = () => {
     <div className="auth-container">
       <div className="auth-card">
         <h2>Login</h2>
-        {error && <div className="error-message">{error}</div>}
-        <Formik
-          initialValues={{ email: '', password: '' }}
-          validate={joiValidator(loginSchema)}
-          onSubmit={handleSubmit}
-        >
-          {({ isSubmitting }) => (
-            <Form>
-              <InputField
-                label="Email"
-                name="email"
-                type="email"
-                placeholder="Enter your email address"
-              />
+        {serverError && <div className="error-message">{serverError}</div>}
 
-              <div className="form-group">
-                <label>Password</label>
-                <Field name="password">
-                  {({ field, meta }) => (
-                    <>
-                      <PasswordInput
-                        {...field}
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder="Enter your password (e.g., MyP@ssw0rd123)"
-                        required
-                        showToggle={false}
-                        className={meta.touched && meta.error ? 'is-invalid' : ''}
-                      />
-                    </>
-                  )}
-                </Field>
-                <ErrorMessage name="password" component="div" className="error-message inline" />
-              </div>
-              <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Logging in...' : 'Login'}
-              </button>
-            </Form>
-          )}
-        </Formik>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FormInput
+            label="Email"
+            type="email"
+            placeholder="Enter your email address"
+            error={errors.email}
+            {...register('email')}
+          />
+
+          <div className="form-group">
+            <label>Password</label>
+            <Controller
+              name="password"
+              control={control}
+              render={({ field }) => (
+                <PasswordInput
+                  {...field}
+                  placeholder="Enter your password (e.g., MyP@ssw0rd123)"
+                  required
+                  showToggle={false}
+                  className={errors.password ? 'is-invalid' : ''}
+                />
+              )}
+            />
+            {errors.password && (
+              <div className="error-message inline">{errors.password.message}</div>
+            )}
+          </div>
+
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
+
         <div className="auth-links">
           <p className="auth-link">
             Don't have an account? <Link to="/signup">Sign up</Link>

@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useForm, Controller } from 'react-hook-form';
+import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from 'joi';
-import { joiValidator } from '../../../utils/joiValidator';
-import InputField from '../../../components/InputField/InputField.jsx';
+import FormInput from '../../../components/FormInput/FormInput.jsx';
 import PasswordInput from '../../../components/PasswordInput/PasswordInput.jsx';
 import '../../../css/user_authentication/auth.css';
 
@@ -34,8 +34,34 @@ const ForgotPassword = () => {
     }),
   });
 
+  // Forms
+  const {
+    register: registerEmail,
+    handleSubmit: handleSubmitEmail,
+    formState: { errors: errorsEmail, isSubmitting: isSubmittingEmail }
+  } = useForm({
+    resolver: joiResolver(emailSchema)
+  });
+
+  const {
+    register: registerOtp,
+    handleSubmit: handleSubmitOtp,
+    formState: { errors: errorsOtp, isSubmitting: isSubmittingOtp },
+    reset: resetOtp
+  } = useForm({
+    resolver: joiResolver(otpSchema)
+  });
+
+  const {
+    handleSubmit: handleSubmitPassword,
+    control: controlPassword,
+    formState: { errors: errorsPassword, isSubmitting: isSubmittingPassword }
+  } = useForm({
+    resolver: joiResolver(passwordSchema)
+  });
+
   // Handlers
-  const handleSendOTP = async (values, { setSubmitting }) => {
+  const handleSendOTP = async (values) => {
     setSendingOtp(true);
     try {
       const response = await fetch('http://localhost:5000/api/otp/send-forgot-password-otp', {
@@ -57,11 +83,10 @@ const ForgotPassword = () => {
       toast.error(err.message || 'Failed to send OTP');
     } finally {
       setSendingOtp(false);
-      setSubmitting(false);
     }
   };
 
-  const handleVerifyOTP = async (values, { setSubmitting }) => {
+  const handleVerifyOTP = async (values) => {
     setLoading(true);
     try {
       const response = await fetch('http://localhost:5000/api/otp/verify-forgot-password-otp', {
@@ -83,11 +108,10 @@ const ForgotPassword = () => {
       toast.error(err.message || 'Invalid or expired OTP');
     } finally {
       setLoading(false);
-      setSubmitting(false);
     }
   };
 
-  const handleResetPassword = async (values, { setSubmitting }) => {
+  const handleResetPassword = async (values) => {
     setLoading(true);
     try {
       const response = await fetch('http://localhost:5000/api/otp/reset-password', {
@@ -112,7 +136,6 @@ const ForgotPassword = () => {
       toast.error(err.message || 'Failed to reset password');
     } finally {
       setLoading(false);
-      setSubmitting(false);
     }
   };
 
@@ -124,64 +147,50 @@ const ForgotPassword = () => {
         {step === 1 && (
           <>
             <p className="forgot-password-text">Enter your email address and we'll send you an OTP to reset your password.</p>
-            <Formik
-              initialValues={{ email: email || '' }}
-              validate={joiValidator(emailSchema)}
-              onSubmit={handleSendOTP}
-            >
-              {({ isSubmitting }) => (
-                <Form>
-                  <InputField
-                    label="Email"
-                    name="email"
-                    type="email"
-                    placeholder="Enter your email"
-                  />
-                  <button type="submit" disabled={sendingOtp || isSubmitting}>
-                    {sendingOtp || isSubmitting ? 'Sending OTP...' : 'Send OTP'}
-                  </button>
-                </Form>
-              )}
-            </Formik>
+            <form onSubmit={handleSubmitEmail(handleSendOTP)}>
+              <FormInput
+                label="Email"
+                type="email"
+                placeholder="Enter your email"
+                error={errorsEmail.email}
+                {...registerEmail('email')}
+              />
+              <button type="submit" disabled={sendingOtp || isSubmittingEmail}>
+                {sendingOtp || isSubmittingEmail ? 'Sending OTP...' : 'Send OTP'}
+              </button>
+            </form>
           </>
         )}
 
         {step === 2 && (
           <>
             <p className="forgot-password-text">Enter the 6-digit OTP sent to your email.</p>
-            <Formik
-              initialValues={{ otp: '' }}
-              validate={joiValidator(otpSchema)}
-              onSubmit={handleVerifyOTP}
-            >
-              {({ isSubmitting }) => (
-                <Form>
-                  <InputField
-                    label="OTP"
-                    name="otp"
-                    type="text"
-                    placeholder="Enter 6-digit OTP"
-                    maxLength="6"
-                  />
-                  <small className="otp-hint" style={{ display: 'block', marginTop: '-15px', marginBottom: '20px' }}>
-                    Check your email for the OTP code.
-                  </small>
+            <form onSubmit={handleSubmitOtp(handleVerifyOTP)}>
+              <FormInput
+                label="OTP"
+                type="text"
+                placeholder="Enter 6-digit OTP"
+                maxLength="6"
+                error={errorsOtp.otp}
+                {...registerOtp('otp')}
+              />
+              <small className="otp-hint" style={{ display: 'block', marginTop: '-15px', marginBottom: '20px' }}>
+                Check your email for the OTP code.
+              </small>
 
-                  <div className="form-actions">
-                    <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
-                      Back
-                    </button>
-                    <button type="submit" disabled={loading || isSubmitting}>
-                      {loading || isSubmitting ? 'Verifying...' : 'Verify OTP'}
-                    </button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
+              <div className="form-actions">
+                <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
+                  Back
+                </button>
+                <button type="submit" disabled={loading || isSubmittingOtp}>
+                  {loading || isSubmittingOtp ? 'Verifying...' : 'Verify OTP'}
+                </button>
+              </div>
+            </form>
             <button
               type="button"
               className="btn-resend-otp"
-              onClick={() => handleSendOTP({ email }, { setSubmitting: () => { } })}
+              onClick={() => handleSendOTP({ email })}
               disabled={sendingOtp}
             >
               {sendingOtp ? 'Sending...' : 'Resend OTP'}
@@ -192,62 +201,58 @@ const ForgotPassword = () => {
         {step === 3 && (
           <>
             <p className="forgot-password-text">Enter your new password.</p>
-            <Formik
-              initialValues={{ newPassword: '', confirmPassword: '' }}
-              validate={joiValidator(passwordSchema)}
-              onSubmit={handleResetPassword}
-            >
-              {({ isSubmitting }) => (
-                <Form>
-                  <div className="form-group">
-                    <label>New Password</label>
-                    <Field name="newPassword">
-                      {({ field, meta }) => (
-                        <PasswordInput
-                          {...field}
-                          value={field.value}
-                          onChange={field.onChange}
-                          placeholder="Enter your password"
-                          required
-                          minLength="6"
-                          showToggle={false}
-                          className={meta.touched && meta.error ? 'is-invalid' : ''}
-                        />
-                      )}
-                    </Field>
-                    <ErrorMessage name="newPassword" component="div" className="error-message inline" />
-                  </div>
+            <form onSubmit={handleSubmitPassword(handleResetPassword)}>
+              <div className="form-group">
+                <label>New Password</label>
+                <Controller
+                  name="newPassword"
+                  control={controlPassword}
+                  render={({ field }) => (
+                    <PasswordInput
+                      {...field}
+                      placeholder="Enter your password"
+                      required
+                      minLength="6"
+                      showToggle={false}
+                      className={errorsPassword.newPassword ? 'is-invalid' : ''}
+                    />
+                  )}
+                />
+                {errorsPassword.newPassword && (
+                  <div className="error-message inline">{errorsPassword.newPassword.message}</div>
+                )}
+              </div>
 
-                  <div className="form-group">
-                    <label>Confirm Password</label>
-                    <Field name="confirmPassword">
-                      {({ field, meta }) => (
-                        <PasswordInput
-                          {...field}
-                          value={field.value}
-                          onChange={field.onChange}
-                          placeholder="Confirm your password"
-                          required
-                          minLength="6"
-                          showToggle={false}
-                          className={meta.touched && meta.error ? 'is-invalid' : ''}
-                        />
-                      )}
-                    </Field>
-                    <ErrorMessage name="confirmPassword" component="div" className="error-message inline" />
-                  </div>
+              <div className="form-group">
+                <label>Confirm Password</label>
+                <Controller
+                  name="confirmPassword"
+                  control={controlPassword}
+                  render={({ field }) => (
+                    <PasswordInput
+                      {...field}
+                      placeholder="Confirm your password"
+                      required
+                      minLength="6"
+                      showToggle={false}
+                      className={errorsPassword.confirmPassword ? 'is-invalid' : ''}
+                    />
+                  )}
+                />
+                {errorsPassword.confirmPassword && (
+                  <div className="error-message inline">{errorsPassword.confirmPassword.message}</div>
+                )}
+              </div>
 
-                  <div className="form-actions">
-                    <button type="button" className="btn-secondary" onClick={() => setStep(2)}>
-                      Back
-                    </button>
-                    <button type="submit" disabled={loading || isSubmitting}>
-                      {loading || isSubmitting ? 'Resetting...' : 'Reset Password'}
-                    </button>
-                  </div>
-                </Form>
-              )}
-            </Formik>
+              <div className="form-actions">
+                <button type="button" className="btn-secondary" onClick={() => setStep(2)}>
+                  Back
+                </button>
+                <button type="submit" disabled={loading || isSubmittingPassword}>
+                  {loading || isSubmittingPassword ? 'Resetting...' : 'Reset Password'}
+                </button>
+              </div>
+            </form>
           </>
         )}
 

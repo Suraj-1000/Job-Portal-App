@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Formik, Form } from 'formik';
+import { useForm, Controller } from 'react-hook-form';
+import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from 'joi';
-import { joiValidator } from '../../../utils/joiValidator';
-import InputField from '../../../components/InputField/InputField';
+import FormInput from '../../../components/FormInput/FormInput';
 import PasswordInput from '../../../components/PasswordInput/PasswordInput';
 import { useAuth } from '../../../context/AuthContext';
 import './Settings.css';
@@ -25,6 +25,7 @@ const Settings = () => {
         setSearchParams({ tab });
     };
 
+    // Schemas
     const passwordSchema = Joi.object({
         currentPassword: Joi.string().required().label('Current Password'),
         newPassword: Joi.string().min(6).required().label('New Password'),
@@ -45,7 +46,37 @@ const Settings = () => {
         })
     });
 
-    const handleChangePassword = async (values, { resetForm }) => {
+    // Forms
+    const {
+        control: controlPassword,
+        handleSubmit: handleSubmitPassword,
+        reset: resetPasswordForm,
+        formState: { errors: errorsPassword, isSubmitting: isSubmittingPassword }
+    } = useForm({
+        resolver: joiResolver(passwordSchema)
+    });
+
+    const {
+        register: registerEmail,
+        control: controlEmail,
+        handleSubmit: handleSubmitEmail,
+        reset: resetEmailForm,
+        formState: { errors: errorsEmail, isSubmitting: isSubmittingEmail }
+    } = useForm({
+        resolver: joiResolver(emailSchema)
+    });
+
+    const {
+        register: registerDelete,
+        control: controlDelete,
+        handleSubmit: handleSubmitDelete,
+        formState: { errors: errorsDelete, isSubmitting: isSubmittingDelete }
+    } = useForm({
+        resolver: joiResolver(deleteSchema)
+    });
+
+    // Handlers
+    const handleChangePassword = async (values) => {
         setSubmitting(true);
         try {
             const token = localStorage.getItem('token');
@@ -61,7 +92,7 @@ const Settings = () => {
             const data = await response.json();
             if (response.ok) {
                 toast.success('Password changed successfully!');
-                resetForm();
+                resetPasswordForm();
             } else {
                 toast.error(data.message || 'Failed to change password');
             }
@@ -73,7 +104,7 @@ const Settings = () => {
         }
     };
 
-    const handleUpdateEmail = async (values, { resetForm }) => {
+    const handleUpdateEmail = async (values) => {
         setSubmitting(true);
         try {
             const token = localStorage.getItem('token');
@@ -90,7 +121,7 @@ const Settings = () => {
             if (response.ok) {
                 toast.success('Email updated successfully!');
                 refreshUser();
-                resetForm();
+                resetEmailForm();
             } else {
                 toast.error(data.message || 'Failed to update email');
             }
@@ -168,31 +199,59 @@ const Settings = () => {
                         <div className="settings-section">
                             <h2>Change Password</h2>
                             <p className="section-desc">Recommended for account security. Avoid using same passwords as other accounts.</p>
-                            <Formik
-                                initialValues={{ currentPassword: '', newPassword: '', confirmPassword: '' }}
-                                validate={joiValidator(passwordSchema)}
-                                onSubmit={handleChangePassword}
-                            >
-                                {({ isSubmitting }) => (
-                                    <Form className="settings-form">
-                                        <div className="form-group">
-                                            <label>Current Password</label>
-                                            <PasswordInput name="currentPassword" placeholder="Enter current password" />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>New Password</label>
-                                            <PasswordInput name="newPassword" placeholder="Enter new password" />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Confirm New Password</label>
-                                            <PasswordInput name="confirmPassword" placeholder="Confirm new password" />
-                                        </div>
-                                        <button type="submit" className="btn-save" disabled={submitting || isSubmitting}>
-                                            {submitting || isSubmitting ? 'Updating...' : 'Update Password'}
-                                        </button>
-                                    </Form>
-                                )}
-                            </Formik>
+                            <form onSubmit={handleSubmitPassword(handleChangePassword)} className="settings-form">
+                                <div className="form-group">
+                                    <label>Current Password</label>
+                                    <Controller
+                                        name="currentPassword"
+                                        control={controlPassword}
+                                        render={({ field }) => (
+                                            <PasswordInput
+                                                {...field}
+                                                placeholder="Enter current password"
+                                                showToggle={false}
+                                                className={errorsPassword.currentPassword ? 'is-invalid' : ''}
+                                            />
+                                        )}
+                                    />
+                                    {errorsPassword.currentPassword && <div className="error-message inline">{errorsPassword.currentPassword.message}</div>}
+                                </div>
+                                <div className="form-group">
+                                    <label>New Password</label>
+                                    <Controller
+                                        name="newPassword"
+                                        control={controlPassword}
+                                        render={({ field }) => (
+                                            <PasswordInput
+                                                {...field}
+                                                placeholder="Enter new password"
+                                                showToggle={false}
+                                                className={errorsPassword.newPassword ? 'is-invalid' : ''}
+                                            />
+                                        )}
+                                    />
+                                    {errorsPassword.newPassword && <div className="error-message inline">{errorsPassword.newPassword.message}</div>}
+                                </div>
+                                <div className="form-group">
+                                    <label>Confirm New Password</label>
+                                    <Controller
+                                        name="confirmPassword"
+                                        control={controlPassword}
+                                        render={({ field }) => (
+                                            <PasswordInput
+                                                {...field}
+                                                placeholder="Confirm new password"
+                                                showToggle={false}
+                                                className={errorsPassword.confirmPassword ? 'is-invalid' : ''}
+                                            />
+                                        )}
+                                    />
+                                    {errorsPassword.confirmPassword && <div className="error-message inline">{errorsPassword.confirmPassword.message}</div>}
+                                </div>
+                                <button type="submit" className="btn-save" disabled={submitting || isSubmittingPassword}>
+                                    {submitting || isSubmittingPassword ? 'Updating...' : 'Update Password'}
+                                </button>
+                            </form>
                         </div>
                     )}
 
@@ -200,29 +259,34 @@ const Settings = () => {
                         <div className="settings-section">
                             <h2>Update Email</h2>
                             <p className="section-desc">You will need to use the new email for future logins.</p>
-                            <Formik
-                                initialValues={{ newEmail: '', password: '' }}
-                                validate={joiValidator(emailSchema)}
-                                onSubmit={handleUpdateEmail}
-                            >
-                                {({ isSubmitting }) => (
-                                    <Form className="settings-form">
-                                        <InputField
-                                            label="New Email Address"
-                                            name="newEmail"
-                                            type="email"
-                                            placeholder="Enter new email address"
-                                        />
-                                        <div className="form-group">
-                                            <label>Current Password</label>
-                                            <PasswordInput name="password" placeholder="Enter password to confirm" />
-                                        </div>
-                                        <button type="submit" className="btn-save" disabled={submitting || isSubmitting}>
-                                            {submitting || isSubmitting ? 'Updating...' : 'Update Email'}
-                                        </button>
-                                    </Form>
-                                )}
-                            </Formik>
+                            <form onSubmit={handleSubmitEmail(handleUpdateEmail)} className="settings-form">
+                                <FormInput
+                                    label="New Email Address"
+                                    type="email"
+                                    placeholder="Enter new email address"
+                                    error={errorsEmail.newEmail}
+                                    {...registerEmail('newEmail')}
+                                />
+                                <div className="form-group">
+                                    <label>Current Password</label>
+                                    <Controller
+                                        name="password"
+                                        control={controlEmail}
+                                        render={({ field }) => (
+                                            <PasswordInput
+                                                {...field}
+                                                placeholder="Enter password to confirm"
+                                                showToggle={false}
+                                                className={errorsEmail.password ? 'is-invalid' : ''}
+                                            />
+                                        )}
+                                    />
+                                    {errorsEmail.password && <div className="error-message inline">{errorsEmail.password.message}</div>}
+                                </div>
+                                <button type="submit" className="btn-save" disabled={submitting || isSubmittingEmail}>
+                                    {submitting || isSubmittingEmail ? 'Updating...' : 'Update Email'}
+                                </button>
+                            </form>
                         </div>
                     )}
 
@@ -230,29 +294,34 @@ const Settings = () => {
                         <div className="settings-section">
                             <h2 className="danger-text">Delete Account</h2>
                             <p className="section-desc">Once you delete your account, there is no going back. Please be certain.</p>
-                            <Formik
-                                initialValues={{ password: '', confirmDelete: '' }}
-                                validate={joiValidator(deleteSchema)}
-                                onSubmit={handleDeleteAccount}
-                            >
-                                {({ isSubmitting }) => (
-                                    <Form className="settings-form">
-                                        <div className="form-group">
-                                            <label>Current Password</label>
-                                            <PasswordInput name="password" placeholder="Enter password to confirm" />
-                                        </div>
-                                        <InputField
-                                            label='Type "DELETE" to confirm'
-                                            name="confirmDelete"
-                                            type="text"
-                                            placeholder="Type DELETE"
-                                        />
-                                        <button type="submit" className="btn-delete" disabled={submitting || isSubmitting}>
-                                            {submitting || isSubmitting ? 'Deleting...' : 'Permanently Delete Account'}
-                                        </button>
-                                    </Form>
-                                )}
-                            </Formik>
+                            <form onSubmit={handleSubmitDelete(handleDeleteAccount)} className="settings-form">
+                                <div className="form-group">
+                                    <label>Current Password</label>
+                                    <Controller
+                                        name="password"
+                                        control={controlDelete}
+                                        render={({ field }) => (
+                                            <PasswordInput
+                                                {...field}
+                                                placeholder="Enter password to confirm"
+                                                showToggle={false}
+                                                className={errorsDelete.password ? 'is-invalid' : ''}
+                                            />
+                                        )}
+                                    />
+                                    {errorsDelete.password && <div className="error-message inline">{errorsDelete.password.message}</div>}
+                                </div>
+                                <FormInput
+                                    label='Type "DELETE" to confirm'
+                                    type="text"
+                                    placeholder="Type DELETE"
+                                    error={errorsDelete.confirmDelete}
+                                    {...registerDelete('confirmDelete')}
+                                />
+                                <button type="submit" className="btn-delete" disabled={submitting || isSubmittingDelete}>
+                                    {submitting || isSubmittingDelete ? 'Deleting...' : 'Permanently Delete Account'}
+                                </button>
+                            </form>
                         </div>
                     )}
                 </div>
