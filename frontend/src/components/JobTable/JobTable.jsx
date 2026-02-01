@@ -1,53 +1,77 @@
 import { FaEdit, FaTrash } from 'react-icons/fa';
-
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 
 const JobTable = ({ jobs, onEdit, onDelete }) => {
     return (
-        <table className="w-full border-collapse text-[0.95rem]">
-            <thead className="bg-slate-50 border-b-2 border-slate-200">
-                <tr>
-                    <th className="px-5 py-4 text-left font-semibold text-slate-700 text-sm uppercase tracking-wide">Job Title</th>
-                    <th className="px-5 py-4 text-left font-semibold text-slate-700 text-sm uppercase tracking-wide">Company</th>
-                    <th className="px-5 py-4 text-left font-semibold text-slate-700 text-sm uppercase tracking-wide">Category</th>
-                    <th className="px-5 py-4 text-left font-semibold text-slate-700 text-sm uppercase tracking-wide">Level/Type</th>
-                    <th className="px-5 py-4 text-left font-semibold text-slate-700 text-sm uppercase tracking-wide">Expiry</th>
-                    <th className="px-5 py-4 text-left font-semibold text-slate-700 text-sm uppercase tracking-wide">Status</th>
-                    <th className="px-5 py-4 text-left font-semibold text-slate-700 text-sm uppercase tracking-wide">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {jobs.map((job) => (
-                    <tr key={job.id} className="border-b border-slate-100 transition-all hover:bg-slate-50 hover:translate-x-0.5">
-                        <td className="px-5 py-4 text-slate-600">
-                            <div className="font-semibold mb-1">{job.title}</div>
-                            <small className="text-slate-500">Openings: {job.openings}</small>
-                        </td>
-                        <td className="px-5 py-4 text-slate-600">{job.companyName}</td>
-                        <td className="px-5 py-4 text-slate-600">{job.category?.name || 'Uncategorized'}</td>
-                        <td className="px-5 py-4 text-slate-600">
-                            <div className="capitalize">{job.jobLevel}</div>
-                            <small className="text-slate-500 capitalize">{job.type}</small>
-                        </td>
-                        <td className="px-5 py-4 text-slate-600">{job.expiryDate || 'N/A'}</td>
-                        <td className="px-5 py-4 text-slate-600">
-                            <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-medium capitalize ${job.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                                {job.status}
-                            </span>
-                        </td>
-                        <td className="px-5 py-4 text-slate-600">
-                            <div className="flex gap-2">
-                                <button className="bg-transparent border-none cursor-pointer p-2 rounded-md text-[1.1rem] text-slate-500 transition-all flex items-center justify-center hover:bg-blue-50 hover:text-blue-500" onClick={() => onEdit(job)}>
-                                    <FaEdit />
-                                </button>
-                                <button className="bg-transparent border-none cursor-pointer p-2 rounded-md text-[1.1rem] text-slate-500 transition-all flex items-center justify-center hover:bg-red-50 hover:text-red-500" onClick={() => onDelete(job)}>
-                                    <FaTrash />
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
-        </table>
+        <div className="rounded-md border border-slate-200 overflow-hidden">
+            <Table>
+                <TableHeader className="bg-slate-50">
+                    <TableRow>
+                        <TableHead className="font-semibold text-slate-700 uppercase tracking-wide">Job Title</TableHead>
+                        <TableHead className="font-semibold text-slate-700 uppercase tracking-wide">Company</TableHead>
+                        <TableHead className="font-semibold text-slate-700 uppercase tracking-wide">Category</TableHead>
+                        <TableHead className="font-semibold text-slate-700 uppercase tracking-wide">Level/Type</TableHead>
+                        <TableHead className="font-semibold text-slate-700 uppercase tracking-wide">Expiry</TableHead>
+                        <TableHead className="font-semibold text-slate-700 uppercase tracking-wide">Status</TableHead>
+                        <TableHead className="font-semibold text-slate-700 uppercase tracking-wide">Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {jobs.map((job) => (
+                        <TableRow key={job.id} className="hover:bg-slate-50">
+                            <TableCell className="font-medium text-slate-600">
+                                <div className="font-semibold mb-1">{job.title}</div>
+                                <small className="text-slate-500">Openings: {job.openings}</small>
+                            </TableCell>
+                            <TableCell className="text-slate-600">{job.companyName}</TableCell>
+                            <TableCell className="text-slate-600">{job.category?.name || 'Uncategorized'}</TableCell>
+                            <TableCell className="text-slate-600">
+                                <div className="capitalize">{job.jobLevel}</div>
+                                <small className="text-slate-500 capitalize">{job.type}</small>
+                            </TableCell>
+                            <TableCell className="text-slate-600">{job.expiryDate || 'N/A'}</TableCell>
+                            <TableCell className="text-slate-600">
+                                <Badge
+                                    variant={job.status === 'active' ? 'success' : 'secondary'}
+                                    className={`capitalize font-medium ${job.status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'}`}
+                                >
+                                    {job.status}
+                                </Badge>
+                            </TableCell>
+                            <TableCell className="text-slate-600">
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-9 w-9 text-slate-500 hover:text-blue-500 hover:bg-blue-50"
+                                        onClick={() => onEdit(job)}
+                                    >
+                                        <FaEdit className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-9 w-9 text-slate-500 hover:text-red-500 hover:bg-red-50"
+                                        onClick={() => onDelete(job)}
+                                    >
+                                        <FaTrash className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
     );
 };
 

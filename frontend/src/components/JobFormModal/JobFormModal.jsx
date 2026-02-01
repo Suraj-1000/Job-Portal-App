@@ -5,7 +5,23 @@ import Joi from 'joi';
 import RichTextEditor from '../RichTextEditor/RichTextEditor';
 import LocationSearchInput from '../LocationInput/LocationSearchInput';
 import FormInput from '../FormInput/FormInput';
-
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 
 const JobFormModal = ({
     isOpen,
@@ -76,6 +92,23 @@ const JobFormModal = ({
                 skills: currentJob.skills || '',
                 description: currentJob.description || ''
             });
+        } else if (isOpen) {
+            reset({
+                title: '',
+                categoryId: '',
+                companyName: '',
+                location: '',
+                jobLevel: 'entry-level',
+                type: 'full-time',
+                openings: 1,
+                salary: '',
+                industry: '',
+                expiryDate: '',
+                education: 'see',
+                experience: '',
+                skills: '',
+                description: ''
+            });
         }
     }, [isOpen, currentJob, reset]);
 
@@ -83,19 +116,16 @@ const JobFormModal = ({
         onSave(data);
     };
 
-    if (!isOpen) return null;
-
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] backdrop-blur-[4px]" onClick={onClose}>
-            <div className="bg-white rounded-xl shadow-2xl animate-[modalSlideIn_0.3s_ease-out] w-[900px] max-w-[95%] h-[85vh] flex flex-col p-0" onClick={(e) => e.stopPropagation()}>
-                <div className="px-[30px] py-6 border-b-2 border-slate-200 bg-gradient-to-br from-[#667eea] to-[#764ba2] rounded-t-xl">
-                    <h2 className="m-0 text-2xl text-white">{isEditing ? 'Edit Job' : 'Post New Job'}</h2>
-                </div>
-                <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto p-[30px]">
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="max-w-[900px] h-[85vh] flex flex-col p-0 gap-0 overflow-hidden" onPointerDownOutside={(e) => e.preventDefault()}>
+                <DialogHeader className="px-6 py-5 border-b border-slate-200 bg-slate-50">
+                    <DialogTitle>{isEditing ? 'Edit Job' : 'Post New Job'}</DialogTitle>
+                </DialogHeader>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto p-6">
                     <div className="mb-8">
-                        <h3 className="m-0 mb-4 text-[1.1rem] text-slate-800 pb-2 border-b-2 border-slate-200">Basic Information</h3>
+                        <h3 className="mb-4 text-lg font-semibold text-slate-800 pb-2 border-b border-slate-200">Basic Information</h3>
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                             <FormInput
                                 label="Job Title *"
@@ -104,21 +134,28 @@ const JobFormModal = ({
                                 {...register('title')}
                             />
 
-                            <div className="mb-5">
-                                <label className="block mb-2 font-semibold text-slate-700 text-sm">Category *</label>
-                                <select
-                                    className={`w-full p-3 border-2 border-slate-200 rounded-lg text-[0.95rem] transition-all focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)] ${errors.categoryId ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(220,53,69,0.1)]' : ''}`}
-                                    {...register('categoryId')}
-                                >
-                                    <option value="">Select Category</option>
-                                    {categories
-                                        .filter(cat => cat.status === 'active')
-                                        .map(cat => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                        ))
-                                    }
-                                </select>
-                                {errors.categoryId && <div className="text-[#d63031] text-[0.85rem] mt-1 inline-block">{errors.categoryId.message}</div>}
+                            <div className="mb-6 space-y-2">
+                                <Label className="text-sm font-semibold text-slate-700">Category *</Label>
+                                <Controller
+                                    control={control}
+                                    name="categoryId"
+                                    render={({ field }) => (
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <SelectTrigger className={errors.categoryId ? "border-red-500" : ""}>
+                                                <SelectValue placeholder="Select Category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {categories
+                                                    .filter(cat => cat.status === 'active')
+                                                    .map(cat => (
+                                                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                                                    ))
+                                                }
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
+                                {errors.categoryId && <div className="text-red-500 text-sm">{errors.categoryId.message}</div>}
                             </div>
 
                             <FormInput
@@ -128,8 +165,8 @@ const JobFormModal = ({
                                 {...register('companyName')}
                             />
 
-                            <div className="mb-5">
-                                <label className="block mb-2 font-semibold text-slate-700 text-sm">Location</label>
+                            <div className="mb-6 space-y-2">
+                                <Label className="text-sm font-semibold text-slate-700">Location</Label>
                                 <Controller
                                     name="location"
                                     control={control}
@@ -141,38 +178,54 @@ const JobFormModal = ({
                                         />
                                     )}
                                 />
-                                {errors.location && <div className="text-[#d63031] text-[0.85rem] mt-1 inline-block">{errors.location.message}</div>}
+                                {errors.location && <div className="text-red-500 text-sm">{errors.location.message}</div>}
                             </div>
                         </div>
                     </div>
 
                     <div className="mb-8">
-                        <h3 className="m-0 mb-4 text-[1.1rem] text-slate-800 pb-2 border-b-2 border-slate-200">Job Details</h3>
+                        <h3 className="mb-4 text-lg font-semibold text-slate-800 pb-2 border-b border-slate-200">Job Details</h3>
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <div className="mb-5">
-                                <label className="block mb-2 font-semibold text-slate-700 text-sm">Job Level</label>
-                                <select
-                                    className="w-full p-3 border-2 border-slate-200 rounded-lg text-[0.95rem] transition-all focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]"
-                                    {...register('jobLevel')}
-                                >
-                                    <option value="entry-level">Entry Level</option>
-                                    <option value="mid-level">Mid Level</option>
-                                    <option value="senior-level">Senior Level</option>
-                                </select>
+                            <div className="mb-6 space-y-2">
+                                <Label className="text-sm font-semibold text-slate-700">Job Level</Label>
+                                <Controller
+                                    control={control}
+                                    name="jobLevel"
+                                    render={({ field }) => (
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Job Level" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="entry-level">Entry Level</SelectItem>
+                                                <SelectItem value="mid-level">Mid Level</SelectItem>
+                                                <SelectItem value="senior-level">Senior Level</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
                             </div>
 
-                            <div className="mb-5">
-                                <label className="block mb-2 font-semibold text-slate-700 text-sm">Employment Type</label>
-                                <select
-                                    className="w-full p-3 border-2 border-slate-200 rounded-lg text-[0.95rem] transition-all focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]"
-                                    {...register('type')}
-                                >
-                                    <option value="full-time">Full Time</option>
-                                    <option value="part-time">Part Time</option>
-                                    <option value="contract">Contract</option>
-                                    <option value="remote">Remote</option>
-                                    <option value="internship">Internship</option>
-                                </select>
+                            <div className="mb-6 space-y-2">
+                                <Label className="text-sm font-semibold text-slate-700">Employment Type</Label>
+                                <Controller
+                                    control={control}
+                                    name="type"
+                                    render={({ field }) => (
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Employment Type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="full-time">Full Time</SelectItem>
+                                                <SelectItem value="part-time">Part Time</SelectItem>
+                                                <SelectItem value="contract">Contract</SelectItem>
+                                                <SelectItem value="remote">Remote</SelectItem>
+                                                <SelectItem value="internship">Internship</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
                             </div>
 
                             <FormInput
@@ -207,21 +260,29 @@ const JobFormModal = ({
                     </div>
 
                     <div className="mb-8">
-                        <h3 className="m-0 mb-4 text-[1.1rem] text-slate-800 pb-2 border-b-2 border-slate-200">Requirements</h3>
+                        <h3 className="mb-4 text-lg font-semibold text-slate-800 pb-2 border-b border-slate-200">Requirements</h3>
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                            <div className="mb-5">
-                                <label className="block mb-2 font-semibold text-slate-700 text-sm">Education Level</label>
-                                <select
-                                    className="w-full p-3 border-2 border-slate-200 rounded-lg text-[0.95rem] transition-all focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]"
-                                    {...register('education')}
-                                >
-                                    <option value="see">SEE</option>
-                                    <option value="high-school">High School (+2)</option>
-                                    <option value="diploma">Diploma</option>
-                                    <option value="bachelor">Bachelor's</option>
-                                    <option value="master">Master's</option>
-                                    <option value="phd">PhD</option>
-                                </select>
+                            <div className="mb-6 space-y-2">
+                                <Label className="text-sm font-semibold text-slate-700">Education Level</Label>
+                                <Controller
+                                    control={control}
+                                    name="education"
+                                    render={({ field }) => (
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Education" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="see">SEE</SelectItem>
+                                                <SelectItem value="high-school">High School (+2)</SelectItem>
+                                                <SelectItem value="diploma">Diploma</SelectItem>
+                                                <SelectItem value="bachelor">Bachelor's</SelectItem>
+                                                <SelectItem value="master">Master's</SelectItem>
+                                                <SelectItem value="phd">PhD</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
                             </div>
 
                             <FormInput
@@ -243,9 +304,9 @@ const JobFormModal = ({
                     </div>
 
                     <div className="mb-8">
-                        <h3 className="m-0 mb-4 text-[1.1rem] text-slate-800 pb-2 border-b-2 border-slate-200">Description</h3>
+                        <h3 className="mb-4 text-lg font-semibold text-slate-800 pb-2 border-b border-slate-200">Description</h3>
                         <div className="mb-5">
-                            <label className="block mb-2 font-semibold text-slate-700 text-sm">Job Description *</label>
+                            <Label className="block mb-2 font-semibold text-slate-700 text-sm">Job Description *</Label>
                             <Controller
                                 name="description"
                                 control={control}
@@ -257,19 +318,23 @@ const JobFormModal = ({
                                     />
                                 )}
                             />
-                            {errors.description && <div className="text-[#d63031] text-[0.85rem] mt-1 inline-block">{errors.description.message}</div>}
+                            {errors.description && <div className="text-red-500 text-sm mt-1">{errors.description.message}</div>}
                         </div>
                     </div>
-
-                    <div className="px-[30px] py-5 border-t-2 border-slate-200 flex justify-end gap-3 bg-slate-50 rounded-b-xl">
-                        <button type="button" className="bg-slate-400 text-white border-none py-2.5 px-5 rounded-lg font-medium cursor-pointer transition-all hover:bg-slate-500" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white border-none py-2.5 px-5 rounded-lg font-medium cursor-pointer shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed" disabled={isSubmitting}>
-                            {isEditing ? 'Update Job' : 'Create Job'}
-                        </button>
-                    </div>
                 </form>
-            </div>
-        </div>
+
+                <DialogFooter className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 rounded-b-lg">
+                    <Button variant="outline" onClick={onClose} type="button">Cancel</Button>
+                    <Button
+                        onClick={handleSubmit(onSubmit)}
+                        disabled={isSubmitting}
+                        className="bg-indigo-600 hover:bg-indigo-700"
+                    >
+                        {isEditing ? 'Update Job' : 'Create Job'}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };
 

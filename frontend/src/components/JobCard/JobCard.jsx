@@ -2,7 +2,16 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaMapMarkerAlt, FaBriefcase, FaDollarSign, FaHeart, FaRegHeart } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 
 const JobCard = ({ job }) => {
     const [isFavorite, setIsFavorite] = useState(false);
@@ -100,58 +109,69 @@ const JobCard = ({ job }) => {
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl p-6 transition-all duration-300 cursor-pointer flex flex-col gap-4 hover:-translate-y-1 hover:shadow-2xl hover:shadow-gray-900/10 hover:border-[#667eea] md:p-5" onClick={handleCardClick}>
-            <div className="flex justify-between items-start gap-3">
-                <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1.5 leading-snug md:text-base">{job.title}</h3>
-                    <p className="text-sm text-gray-500 m-0">{job.companyName}</p>
+        <Card
+            className="transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-2xl hover:shadow-gray-900/10 hover:border-[#667eea] group h-full flex flex-col"
+            onClick={handleCardClick}
+        >
+            <CardHeader className="relative pb-3">
+                <div className="flex justify-between items-start gap-3">
+                    <div className="flex-1">
+                        <CardTitle className="text-lg font-semibold text-gray-900 mb-1.5 leading-snug lg:text-base">{job.title}</CardTitle>
+                        <CardDescription className="text-sm text-gray-500 m-0">{job.companyName}</CardDescription>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-transparent hover:scale-110 transition-transform -mr-2 -mt-2"
+                        onClick={handleFavoriteToggle}
+                        aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                        {isFavorite ? <FaHeart className="text-xl text-red-600" /> : <FaRegHeart className="text-xl text-gray-300 group-hover:text-gray-400" />}
+                    </Button>
                 </div>
-                <button
-                    className="bg-none border-none p-2 cursor-pointer transition-transform duration-200 hover:scale-110"
-                    onClick={handleFavoriteToggle}
-                    aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                >
-                    {isFavorite ? <FaHeart className="text-xl transition-colors duration-200 text-red-600" /> : <FaRegHeart className="text-xl transition-colors duration-200 text-gray-300" />}
-                </button>
-            </div>
+            </CardHeader>
 
-            <div className="flex flex-wrap gap-4 md:flex-col md:gap-3">
-                <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                    <FaMapMarkerAlt className="text-[#667eea] text-sm" />
-                    <span>{job.location || 'Not specified'}</span>
+            <CardContent className="flex-1 pb-4">
+                <div className="flex flex-wrap gap-4 mb-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1.5">
+                        <FaMapMarkerAlt className="text-[#667eea]" />
+                        <span>{job.location || 'Not specified'}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <FaBriefcase className="text-[#667eea]" />
+                        <span>{job.type || 'Full-time'}</span>
+                    </div>
+                    {job.salary && (
+                        <div className="flex items-center gap-1.5">
+                            <FaDollarSign className="text-[#667eea]" />
+                            <span>{job.salary}</span>
+                        </div>
+                    )}
                 </div>
-                <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                    <FaBriefcase className="text-[#667eea] text-sm" />
-                    <span>{job.type || 'Full-time'}</span>
-                </div>
-                {job.salary && (
-                    <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                        <FaDollarSign className="text-[#667eea] text-sm" />
-                        <span>{job.salary}</span>
+
+                {job.category && (
+                    <div className="flex gap-2 flex-wrap mb-4">
+                        <Badge variant="secondary" className="font-medium bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border-none">
+                            {job.category.name}
+                        </Badge>
                     </div>
                 )}
-            </div>
 
-            {job.category && (
-                <div className="flex gap-2 flex-wrap">
-                    <span className="inline-block px-3 py-1.5 bg-indigo-50 text-[#667eea] rounded-md text-xs font-medium">{job.category.name}</span>
+                <div className="text-gray-500 text-sm leading-relaxed">
+                    <p className="m-0 line-clamp-3">{job.description?.replace(/<[^>]*>?/gm, '').substring(0, 120)}...</p>
                 </div>
-            )}
+            </CardContent>
 
-            <div className="text-gray-500 text-sm leading-relaxed">
-                <p className="m-0">{job.description?.substring(0, 120)}...</p>
-            </div>
-
-            <div className="mt-auto pt-4 border-t border-gray-100">
-                <button
-                    className="w-full py-3 px-6 bg-[#667eea] text-white border-none rounded-lg text-[15px] font-medium cursor-pointer transition-all duration-200 hover:bg-[#5568d3] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#667eea]/30 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            <CardFooter className="pt-0">
+                <Button
+                    className="w-full bg-[#667eea] hover:bg-[#5568d3]"
                     onClick={handleApply}
                     disabled={isApplying}
                 >
                     {isApplying ? 'Applying...' : 'Apply Now'}
-                </button>
-            </div>
-        </div>
+                </Button>
+            </CardFooter>
+        </Card>
     );
 };
 
