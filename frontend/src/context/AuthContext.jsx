@@ -12,8 +12,10 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const loadUser = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
+            const accessToken = localStorage.getItem('accessToken');
+            const refreshToken = localStorage.getItem('refreshToken');
+
+            if (!accessToken) {
                 setLoading(false);
                 return;
             }
@@ -21,7 +23,7 @@ export const AuthProvider = ({ children }) => {
             try {
                 const response = await fetch('http://localhost:5000/api/profile', {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${accessToken}`
                     }
                 });
 
@@ -30,12 +32,16 @@ export const AuthProvider = ({ children }) => {
                     setUser(userData);
                 } else {
                     // Token invalid or expired
-                    localStorage.removeItem('token');
+                    // Here we could try to refresh the token using the refreshToken
+                    // For now, we'll just log out
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('refreshToken');
                     setUser(null);
                 }
             } catch (error) {
                 console.error('Error loading user:', error);
-                localStorage.removeItem('token');
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -45,13 +51,17 @@ export const AuthProvider = ({ children }) => {
         loadUser();
     }, []);
 
-    const login = (userData, token) => {
-        localStorage.setItem('token', token);
+    const login = (userData, accessToken, refreshToken) => {
+        localStorage.setItem('accessToken', accessToken);
+        if (refreshToken) {
+            localStorage.setItem('refreshToken', refreshToken);
+        }
         setUser(userData);
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         // Also remove legacy user item if it exists
         localStorage.removeItem('user');
         setUser(null);
@@ -59,13 +69,13 @@ export const AuthProvider = ({ children }) => {
 
     // Function to refresh user data (e.g. after profile update)
     const refreshUser = async () => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) return;
 
         try {
             const response = await fetch('http://localhost:5000/api/profile', {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (response.ok) {

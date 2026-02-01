@@ -21,7 +21,7 @@ const JobCard = ({ job }) => {
     const handleFavoriteToggle = async (e) => {
         e.stopPropagation();
 
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken');
         if (!token) {
             toast.error('Please login to add favorites');
             navigate('/login');
@@ -70,7 +70,7 @@ const JobCard = ({ job }) => {
     const handleApply = async (e) => {
         e.stopPropagation();
 
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken');
         if (!token) {
             toast.error('Please login to apply for jobs');
             navigate('/login');

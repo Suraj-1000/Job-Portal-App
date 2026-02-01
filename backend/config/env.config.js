@@ -12,6 +12,9 @@ module.exports = {
 
     // JWT
     JWT_SECRET: getEnv("JWT_SECRET", "mysecretkey"),
+    JWT_REFRESH_SECRET: getEnv("JWT_REFRESH_SECRET", "myrefreshsecretkey"),
+    JWT_ACCESS_EXPIRY: getEnv("JWT_ACCESS_EXPIRY", "15m"),
+    JWT_REFRESH_EXPIRY: getEnv("JWT_REFRESH_EXPIRY", "7d"),
 
     // Email
     EMAIL_USER: getEnv("EMAIL_USER", "dsurajkunwor101@gmail.com"),

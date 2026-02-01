@@ -52,7 +52,7 @@ const Login = () => {
       }
 
       // Save token and update state
-      login(data.user, data.token);
+      login(data.user, data.accessToken, data.refreshToken);
 
       toast.success('Login successful!');
 

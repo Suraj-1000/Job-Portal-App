@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from 'joi';
+import { useAuth } from '../../../context/AuthContext';
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -29,6 +30,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const detailsSchema = Joi.object({
     firstName: Joi.string().trim().required().label('First Name'),
@@ -115,8 +117,7 @@ const Signup = () => {
       }
 
       // Save token and user data
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      login(data.user, data.accessToken, data.refreshToken);
 
       toast.success('Account created successfully!');
 

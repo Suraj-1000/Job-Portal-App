@@ -63,10 +63,16 @@ class AuthService extends BaseService {
         user.lastLogin = new Date();
         await user.save();
 
-        const token = jwt.sign(
+        const accessToken = jwt.sign(
             { id: user.id, role: user.role },
             envConfig.JWT_SECRET,
-            { expiresIn: envConfig.JWT_ACCESS_EXPIRY || '1h' }
+            { expiresIn: envConfig.JWT_ACCESS_EXPIRY }
+        );
+
+        const refreshToken = jwt.sign(
+            { id: user.id },
+            envConfig.JWT_REFRESH_SECRET,
+            { expiresIn: envConfig.JWT_REFRESH_EXPIRY }
         );
 
         const userResponse = user.toJSON();
@@ -74,7 +80,8 @@ class AuthService extends BaseService {
 
         return {
             message: "Login successful",
-            token,
+            accessToken,
+            refreshToken,
             user: userResponse
         };
     }

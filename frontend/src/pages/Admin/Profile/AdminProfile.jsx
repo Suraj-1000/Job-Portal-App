@@ -76,7 +76,7 @@ const AdminProfile = ({ activeTab = 'profile' }) => {
     // Handlers
     const handleUpdateProfile = async (values) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             const response = await fetch(`http://localhost:5000/api/users/${user.id}`, {
                 method: 'PATCH',
                 headers: {
@@ -100,7 +100,7 @@ const AdminProfile = ({ activeTab = 'profile' }) => {
 
     const handleChangePassword = async (values) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('accessToken');
             const response = await fetch(`http://localhost:5000/api/users/${user.id}`, {
                 method: 'PATCH',
                 headers: {
