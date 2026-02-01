@@ -5,7 +5,7 @@ import Joi from 'joi';
 import RichTextEditor from '../RichTextEditor/RichTextEditor';
 import LocationSearchInput from '../LocationInput/LocationSearchInput';
 import FormInput from '../FormInput/FormInput';
-import './JobFormModal.css';
+
 
 const JobFormModal = ({
     isOpen,
@@ -85,16 +85,18 @@ const JobFormModal = ({
 
     if (!isOpen) return null;
 
+    if (!isOpen) return null;
+
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content large" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h2>{isEditing ? 'Edit Job' : 'Post New Job'}</h2>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] backdrop-blur-[4px]" onClick={onClose}>
+            <div className="bg-white rounded-xl shadow-2xl animate-[modalSlideIn_0.3s_ease-out] w-[900px] max-w-[95%] h-[85vh] flex flex-col p-0" onClick={(e) => e.stopPropagation()}>
+                <div className="px-[30px] py-6 border-b-2 border-slate-200 bg-gradient-to-br from-[#667eea] to-[#764ba2] rounded-t-xl">
+                    <h2 className="m-0 text-2xl text-white">{isEditing ? 'Edit Job' : 'Post New Job'}</h2>
                 </div>
-                <form onSubmit={handleSubmit(onSubmit)} className="scrollable-form">
-                    <div className="form-section">
-                        <h3 className="section-title">Basic Information</h3>
-                        <div className="form-grid">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto p-[30px]">
+                    <div className="mb-8">
+                        <h3 className="m-0 mb-4 text-[1.1rem] text-slate-800 pb-2 border-b-2 border-slate-200">Basic Information</h3>
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                             <FormInput
                                 label="Job Title *"
                                 placeholder="e.g. Senior Software Engineer"
@@ -102,10 +104,10 @@ const JobFormModal = ({
                                 {...register('title')}
                             />
 
-                            <div className="form-group">
-                                <label>Category *</label>
+                            <div className="mb-5">
+                                <label className="block mb-2 font-semibold text-slate-700 text-sm">Category *</label>
                                 <select
-                                    className={`form-input ${errors.categoryId ? 'is-invalid' : ''}`}
+                                    className={`w-full p-3 border-2 border-slate-200 rounded-lg text-[0.95rem] transition-all focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)] ${errors.categoryId ? 'border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(220,53,69,0.1)]' : ''}`}
                                     {...register('categoryId')}
                                 >
                                     <option value="">Select Category</option>
@@ -116,7 +118,7 @@ const JobFormModal = ({
                                         ))
                                     }
                                 </select>
-                                {errors.categoryId && <div className="error-message inline">{errors.categoryId.message}</div>}
+                                {errors.categoryId && <div className="text-[#d63031] text-[0.85rem] mt-1 inline-block">{errors.categoryId.message}</div>}
                             </div>
 
                             <FormInput
@@ -126,8 +128,8 @@ const JobFormModal = ({
                                 {...register('companyName')}
                             />
 
-                            <div className="form-group">
-                                <label>Location</label>
+                            <div className="mb-5">
+                                <label className="block mb-2 font-semibold text-slate-700 text-sm">Location</label>
                                 <Controller
                                     name="location"
                                     control={control}
@@ -139,18 +141,18 @@ const JobFormModal = ({
                                         />
                                     )}
                                 />
-                                {errors.location && <div className="error-message inline">{errors.location.message}</div>}
+                                {errors.location && <div className="text-[#d63031] text-[0.85rem] mt-1 inline-block">{errors.location.message}</div>}
                             </div>
                         </div>
                     </div>
 
-                    <div className="form-section">
-                        <h3 className="section-title">Job Details</h3>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label>Job Level</label>
+                    <div className="mb-8">
+                        <h3 className="m-0 mb-4 text-[1.1rem] text-slate-800 pb-2 border-b-2 border-slate-200">Job Details</h3>
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                            <div className="mb-5">
+                                <label className="block mb-2 font-semibold text-slate-700 text-sm">Job Level</label>
                                 <select
-                                    className="form-input"
+                                    className="w-full p-3 border-2 border-slate-200 rounded-lg text-[0.95rem] transition-all focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]"
                                     {...register('jobLevel')}
                                 >
                                     <option value="entry-level">Entry Level</option>
@@ -159,10 +161,10 @@ const JobFormModal = ({
                                 </select>
                             </div>
 
-                            <div className="form-group">
-                                <label>Employment Type</label>
+                            <div className="mb-5">
+                                <label className="block mb-2 font-semibold text-slate-700 text-sm">Employment Type</label>
                                 <select
-                                    className="form-input"
+                                    className="w-full p-3 border-2 border-slate-200 rounded-lg text-[0.95rem] transition-all focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]"
                                     {...register('type')}
                                 >
                                     <option value="full-time">Full Time</option>
@@ -204,13 +206,13 @@ const JobFormModal = ({
                         </div>
                     </div>
 
-                    <div className="form-section">
-                        <h3 className="section-title">Requirements</h3>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label>Education Level</label>
+                    <div className="mb-8">
+                        <h3 className="m-0 mb-4 text-[1.1rem] text-slate-800 pb-2 border-b-2 border-slate-200">Requirements</h3>
+                        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                            <div className="mb-5">
+                                <label className="block mb-2 font-semibold text-slate-700 text-sm">Education Level</label>
                                 <select
-                                    className="form-input"
+                                    className="w-full p-3 border-2 border-slate-200 rounded-lg text-[0.95rem] transition-all focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]"
                                     {...register('education')}
                                 >
                                     <option value="see">SEE</option>
@@ -229,7 +231,7 @@ const JobFormModal = ({
                                 {...register('experience')}
                             />
 
-                            <div className="form-group full-width">
+                            <div className="mb-5 md:col-span-2">
                                 <FormInput
                                     label="Skills (Comma Separated)"
                                     placeholder="e.g. React, Node.js, SQL"
@@ -240,10 +242,10 @@ const JobFormModal = ({
                         </div>
                     </div>
 
-                    <div className="form-section">
-                        <h3 className="section-title">Description</h3>
-                        <div className="form-group">
-                            <label>Job Description *</label>
+                    <div className="mb-8">
+                        <h3 className="m-0 mb-4 text-[1.1rem] text-slate-800 pb-2 border-b-2 border-slate-200">Description</h3>
+                        <div className="mb-5">
+                            <label className="block mb-2 font-semibold text-slate-700 text-sm">Job Description *</label>
                             <Controller
                                 name="description"
                                 control={control}
@@ -255,13 +257,13 @@ const JobFormModal = ({
                                     />
                                 )}
                             />
-                            {errors.description && <div className="error-message inline">{errors.description.message}</div>}
+                            {errors.description && <div className="text-[#d63031] text-[0.85rem] mt-1 inline-block">{errors.description.message}</div>}
                         </div>
                     </div>
 
-                    <div className="modal-footer">
-                        <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                    <div className="px-[30px] py-5 border-t-2 border-slate-200 flex justify-end gap-3 bg-slate-50 rounded-b-xl">
+                        <button type="button" className="bg-slate-400 text-white border-none py-2.5 px-5 rounded-lg font-medium cursor-pointer transition-all hover:bg-slate-500" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white border-none py-2.5 px-5 rounded-lg font-medium cursor-pointer shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed" disabled={isSubmitting}>
                             {isEditing ? 'Update Job' : 'Create Job'}
                         </button>
                     </div>

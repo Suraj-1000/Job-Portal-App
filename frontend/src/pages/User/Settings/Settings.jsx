@@ -7,7 +7,7 @@ import Joi from 'joi';
 import FormInput from '../../../components/FormInput/FormInput';
 import PasswordInput from '../../../components/PasswordInput/PasswordInput';
 import { useAuth } from '../../../context/AuthContext';
-import './Settings.css';
+
 
 const Settings = () => {
     const { refreshUser } = useAuth();
@@ -168,25 +168,25 @@ const Settings = () => {
     };
 
     return (
-        <div className="settings-page">
-            <div className="settings-container">
-                <div className="settings-sidebar">
-                    <h3>Account Settings</h3>
-                    <div className="settings-tabs">
+        <div className="py-8 bg-slate-50 min-h-[calc(100vh-140px)]">
+            <div className="max-w-[1000px] mx-auto grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8 px-6">
+                <div className="bg-white rounded-xl p-6 h-fit shadow-sm">
+                    <h3 className="text-lg font-bold text-slate-900 mb-5">Account Settings</h3>
+                    <div className="flex flex-col gap-2">
                         <button
-                            className={`tab-btn ${activeTab === 'password' ? 'active' : ''}`}
+                            className={`p-3 text-left border border-transparent rounded-lg font-medium transition-all duration-200 cursor-pointer text-[0.95rem] ${activeTab === 'password' ? 'bg-indigo-600 text-white' : 'bg-transparent text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}`}
                             onClick={() => handleTabChange('password')}
                         >
                             Change Password
                         </button>
                         <button
-                            className={`tab-btn ${activeTab === 'email' ? 'active' : ''}`}
+                            className={`p-3 text-left border border-transparent rounded-lg font-medium transition-all duration-200 cursor-pointer text-[0.95rem] ${activeTab === 'email' ? 'bg-indigo-600 text-white' : 'bg-transparent text-slate-500 hover:bg-slate-50 hover:text-indigo-600'}`}
                             onClick={() => handleTabChange('email')}
                         >
                             Update Email
                         </button>
                         <button
-                            className={`tab-btn danger ${activeTab === 'delete' ? 'active' : ''}`}
+                            className={`p-3 text-left border border-transparent rounded-lg font-medium transition-all duration-200 cursor-pointer text-[0.95rem] ${activeTab === 'delete' ? 'bg-red-600 text-white' : 'bg-transparent text-slate-500 hover:bg-red-50 hover:text-red-600'}`}
                             onClick={() => handleTabChange('delete')}
                         >
                             Delete Account
@@ -194,14 +194,14 @@ const Settings = () => {
                     </div>
                 </div>
 
-                <div className="settings-content">
+                <div className="bg-white rounded-xl p-6 md:p-10 shadow-sm">
                     {activeTab === 'password' && (
-                        <div className="settings-section">
-                            <h2>Change Password</h2>
-                            <p className="section-desc">Recommended for account security. Avoid using same passwords as other accounts.</p>
-                            <form onSubmit={handleSubmitPassword(handleChangePassword)} className="settings-form">
-                                <div className="form-group">
-                                    <label>Current Password</label>
+                        <div>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Change Password</h2>
+                            <p className="text-slate-500 text-sm mb-8">Recommended for account security. Avoid using same passwords as other accounts.</p>
+                            <form onSubmit={handleSubmitPassword(handleChangePassword)} className="flex flex-col gap-6 max-w-[500px]">
+                                <div className="mb-0">
+                                    <label className="block mb-2 font-medium text-slate-700">Current Password</label>
                                     <Controller
                                         name="currentPassword"
                                         control={controlPassword}
@@ -210,14 +210,14 @@ const Settings = () => {
                                                 {...field}
                                                 placeholder="Enter current password"
                                                 showToggle={false}
-                                                className={errorsPassword.currentPassword ? 'is-invalid' : ''}
+                                                className={errorsPassword.currentPassword ? 'border-red-500' : ''}
                                             />
                                         )}
                                     />
-                                    {errorsPassword.currentPassword && <div className="error-message inline">{errorsPassword.currentPassword.message}</div>}
+                                    {errorsPassword.currentPassword && <div className="text-red-500 text-sm mt-1">{errorsPassword.currentPassword.message}</div>}
                                 </div>
-                                <div className="form-group">
-                                    <label>New Password</label>
+                                <div className="mb-0">
+                                    <label className="block mb-2 font-medium text-slate-700">New Password</label>
                                     <Controller
                                         name="newPassword"
                                         control={controlPassword}
@@ -226,14 +226,14 @@ const Settings = () => {
                                                 {...field}
                                                 placeholder="Enter new password"
                                                 showToggle={false}
-                                                className={errorsPassword.newPassword ? 'is-invalid' : ''}
+                                                className={errorsPassword.newPassword ? 'border-red-500' : ''}
                                             />
                                         )}
                                     />
-                                    {errorsPassword.newPassword && <div className="error-message inline">{errorsPassword.newPassword.message}</div>}
+                                    {errorsPassword.newPassword && <div className="text-red-500 text-sm mt-1">{errorsPassword.newPassword.message}</div>}
                                 </div>
-                                <div className="form-group">
-                                    <label>Confirm New Password</label>
+                                <div className="mb-0">
+                                    <label className="block mb-2 font-medium text-slate-700">Confirm New Password</label>
                                     <Controller
                                         name="confirmPassword"
                                         control={controlPassword}
@@ -242,13 +242,13 @@ const Settings = () => {
                                                 {...field}
                                                 placeholder="Confirm new password"
                                                 showToggle={false}
-                                                className={errorsPassword.confirmPassword ? 'is-invalid' : ''}
+                                                className={errorsPassword.confirmPassword ? 'border-red-500' : ''}
                                             />
                                         )}
                                     />
-                                    {errorsPassword.confirmPassword && <div className="error-message inline">{errorsPassword.confirmPassword.message}</div>}
+                                    {errorsPassword.confirmPassword && <div className="text-red-500 text-sm mt-1">{errorsPassword.confirmPassword.message}</div>}
                                 </div>
-                                <button type="submit" className="btn-save" disabled={submitting || isSubmittingPassword}>
+                                <button type="submit" className="mt-3 px-6 py-3.5 bg-indigo-600 text-white rounded-lg font-semibold cursor-pointer transition-all hover:bg-indigo-700 hover:-translate-y-0.5 hover:shadow-lg disabled:bg-slate-300 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none" disabled={submitting || isSubmittingPassword}>
                                     {submitting || isSubmittingPassword ? 'Updating...' : 'Update Password'}
                                 </button>
                             </form>
@@ -256,10 +256,10 @@ const Settings = () => {
                     )}
 
                     {activeTab === 'email' && (
-                        <div className="settings-section">
-                            <h2>Update Email</h2>
-                            <p className="section-desc">You will need to use the new email for future logins.</p>
-                            <form onSubmit={handleSubmitEmail(handleUpdateEmail)} className="settings-form">
+                        <div>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-2">Update Email</h2>
+                            <p className="text-slate-500 text-sm mb-8">You will need to use the new email for future logins.</p>
+                            <form onSubmit={handleSubmitEmail(handleUpdateEmail)} className="flex flex-col gap-6 max-w-[500px]">
                                 <FormInput
                                     label="New Email Address"
                                     type="email"
@@ -267,8 +267,8 @@ const Settings = () => {
                                     error={errorsEmail.newEmail}
                                     {...registerEmail('newEmail')}
                                 />
-                                <div className="form-group">
-                                    <label>Current Password</label>
+                                <div className="mb-0">
+                                    <label className="block mb-2 font-medium text-slate-700">Current Password</label>
                                     <Controller
                                         name="password"
                                         control={controlEmail}
@@ -277,13 +277,13 @@ const Settings = () => {
                                                 {...field}
                                                 placeholder="Enter password to confirm"
                                                 showToggle={false}
-                                                className={errorsEmail.password ? 'is-invalid' : ''}
+                                                className={errorsEmail.password ? 'border-red-500' : ''}
                                             />
                                         )}
                                     />
-                                    {errorsEmail.password && <div className="error-message inline">{errorsEmail.password.message}</div>}
+                                    {errorsEmail.password && <div className="text-red-500 text-sm mt-1">{errorsEmail.password.message}</div>}
                                 </div>
-                                <button type="submit" className="btn-save" disabled={submitting || isSubmittingEmail}>
+                                <button type="submit" className="mt-3 px-6 py-3.5 bg-indigo-600 text-white rounded-lg font-semibold cursor-pointer transition-all hover:bg-indigo-700 hover:-translate-y-0.5 hover:shadow-lg disabled:bg-slate-300 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none" disabled={submitting || isSubmittingEmail}>
                                     {submitting || isSubmittingEmail ? 'Updating...' : 'Update Email'}
                                 </button>
                             </form>
@@ -291,12 +291,12 @@ const Settings = () => {
                     )}
 
                     {activeTab === 'delete' && (
-                        <div className="settings-section">
-                            <h2 className="danger-text">Delete Account</h2>
-                            <p className="section-desc">Once you delete your account, there is no going back. Please be certain.</p>
-                            <form onSubmit={handleSubmitDelete(handleDeleteAccount)} className="settings-form">
-                                <div className="form-group">
-                                    <label>Current Password</label>
+                        <div>
+                            <h2 className="text-2xl font-bold text-red-600 mb-2">Delete Account</h2>
+                            <p className="text-slate-500 text-sm mb-8">Once you delete your account, there is no going back. Please be certain.</p>
+                            <form onSubmit={handleSubmitDelete(handleDeleteAccount)} className="flex flex-col gap-6 max-w-[500px]">
+                                <div className="mb-0">
+                                    <label className="block mb-2 font-medium text-slate-700">Current Password</label>
                                     <Controller
                                         name="password"
                                         control={controlDelete}
@@ -305,11 +305,11 @@ const Settings = () => {
                                                 {...field}
                                                 placeholder="Enter password to confirm"
                                                 showToggle={false}
-                                                className={errorsDelete.password ? 'is-invalid' : ''}
+                                                className={errorsDelete.password ? 'border-red-500' : ''}
                                             />
                                         )}
                                     />
-                                    {errorsDelete.password && <div className="error-message inline">{errorsDelete.password.message}</div>}
+                                    {errorsDelete.password && <div className="text-red-500 text-sm mt-1">{errorsDelete.password.message}</div>}
                                 </div>
                                 <FormInput
                                     label='Type "DELETE" to confirm'
@@ -318,7 +318,7 @@ const Settings = () => {
                                     error={errorsDelete.confirmDelete}
                                     {...registerDelete('confirmDelete')}
                                 />
-                                <button type="submit" className="btn-delete" disabled={submitting || isSubmittingDelete}>
+                                <button type="submit" className="mt-3 px-6 py-3.5 bg-red-600 text-white rounded-lg font-semibold cursor-pointer transition-all hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg disabled:bg-slate-300 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none" disabled={submitting || isSubmittingDelete}>
                                     {submitting || isSubmittingDelete ? 'Deleting...' : 'Permanently Delete Account'}
                                 </button>
                             </form>

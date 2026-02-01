@@ -104,16 +104,16 @@ const AdminDashboard = () => {
             <h1>Admin Dashboard</h1>
             <p style={{ color: '#636e72', marginBottom: '30px' }}>Overview of your application's performance.</p>
 
-            <div className="dashboard-grid">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 mb-8">
                 {statCards.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
-                        <div key={index} className="stat-card" style={{ borderLeftColor: stat.color }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div key={index} className="bg-white p-6 rounded-xl shadow-sm border-l-4" style={{ borderLeftColor: stat.color }}>
+                            <div className="flex justify-between items-start">
                                 <div>
-                                    <h3>{stat.label}</h3>
-                                    <div className="value" style={{ color: stat.color }}>{stat.value}</div>
-                                    <p style={{ fontSize: '0.85rem', color: '#95a5a6', marginTop: '8px' }}>
+                                    <h3 className="m-0 mb-2.5 text-slate-500 text-[0.9rem] uppercase tracking-wide">{stat.label}</h3>
+                                    <div className="text-[1.8rem] font-bold text-slate-800" style={{ color: stat.color }}>{stat.value}</div>
+                                    <p className="text-[0.85rem] text-slate-400 mt-2">
                                         {stat.description}
                                     </p>
                                 </div>

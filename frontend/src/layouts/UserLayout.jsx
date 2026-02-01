@@ -1,17 +1,19 @@
 import { Outlet } from 'react-router-dom';
 import UserNavbar from '../components/UserNavbar/UserNavbar';
 import Footer from '../components/Footer/Footer';
-import './UserLayout.css';
+
 
 const UserLayout = () => {
     return (
-        <div className="user-layout">
+    return (
+        <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
             <UserNavbar />
-            <main className="user-main">
+            <main className="flex-1 w-full pt-5">
                 <Outlet />
             </main>
             <Footer />
         </div>
+    );
     );
 };
 

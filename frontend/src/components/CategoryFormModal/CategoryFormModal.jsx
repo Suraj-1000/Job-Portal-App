@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from 'joi';
 import FormInput from '../FormInput/FormInput';
-import './CategoryFormModal.css';
+
 
 const CategoryFormModal = ({
     isOpen,
@@ -47,9 +47,9 @@ const CategoryFormModal = ({
     if (!isOpen) return null;
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <h2>{isEditing ? `Edit ${entityName}` : `Add New ${entityName}`}</h2>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] backdrop-blur-[4px]" onClick={onClose}>
+            <div className="bg-white p-[30px] rounded-xl w-[500px] max-w-[90%] shadow-2xl animate-[modalSlideIn_0.3s_ease-out]" onClick={(e) => e.stopPropagation()}>
+                <h2 className="m-0 mb-6 text-slate-800 text-2xl font-semibold">{isEditing ? `Edit ${entityName}` : `Add New ${entityName}`}</h2>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <FormInput
                         label="Name *"
@@ -59,10 +59,10 @@ const CategoryFormModal = ({
                         {...register('name')}
                     />
 
-                    <div className="form-group">
-                        <label>Status</label>
+                    <div className="mb-5">
+                        <label className="block mb-2 font-semibold text-slate-700 text-sm">Status</label>
                         <select
-                            className="form-input"
+                            className="w-full p-3 border-2 border-slate-200 rounded-lg text-[0.95rem] transition-all focus:outline-none focus:border-[#667eea] focus:shadow-[0_0_0_3px_rgba(102,126,234,0.1)]"
                             {...register('status')}
                         >
                             <option value="active">Active</option>
@@ -70,9 +70,9 @@ const CategoryFormModal = ({
                         </select>
                     </div>
 
-                    <div className="modal-actions">
-                        <button type="button" className="btn-secondary" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                    <div className="flex justify-end gap-3 mt-6">
+                        <button type="button" className="bg-slate-400 text-white border-none py-2.5 px-5 rounded-lg font-medium cursor-pointer transition-all hover:bg-slate-500" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="bg-gradient-to-br from-[#667eea] to-[#764ba2] text-white border-none py-2.5 px-5 rounded-lg font-medium cursor-pointer shadow-md transition-all hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed" disabled={isSubmitting}>
                             {isSubmitting ? 'Saving...' : 'Save'}
                         </button>
                     </div>
