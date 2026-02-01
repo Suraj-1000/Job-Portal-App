@@ -6,7 +6,17 @@ import Joi from 'joi';
 import { useAuth } from '../../../context/AuthContext';
 import { FaUser, FaLock, FaCamera, FaSave, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import FormInput from '../../../components/FormInput/FormInput';
+import { Button } from "@/components/ui/button"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 
 
 const UserProfile = () => {
@@ -38,12 +48,7 @@ const UserProfile = () => {
     });
 
     // Forms
-    const {
-        register: registerProfile,
-        handleSubmit: handleSubmitProfile,
-        reset: resetProfile,
-        formState: { errors: errorsProfile, isSubmitting: isSubmittingProfile }
-    } = useForm({
+    const profileForm = useForm({
         resolver: joiResolver(profileSchema),
         defaultValues: {
             firstName: '',
@@ -54,18 +59,18 @@ const UserProfile = () => {
         }
     });
 
-    const {
-        register: registerPassword,
-        handleSubmit: handleSubmitPassword,
-        reset: resetPassword,
-        formState: { errors: errorsPassword, isSubmitting: isSubmittingPassword }
-    } = useForm({
-        resolver: joiResolver(passwordSchema)
+    const passwordForm = useForm({
+        resolver: joiResolver(passwordSchema),
+        defaultValues: {
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+        }
     });
 
     useEffect(() => {
         if (user) {
-            resetProfile({
+            profileForm.reset({
                 firstName: user.firstName || '',
                 lastName: user.lastName || '',
                 phone: user.phone || '',
@@ -73,7 +78,7 @@ const UserProfile = () => {
                 bio: user.bio || ''
             });
         }
-    }, [user, resetProfile]);
+    }, [user, profileForm]);
 
     // Handlers
     const handleUpdateProfile = async (values) => {
@@ -120,7 +125,7 @@ const UserProfile = () => {
             if (!response.ok) throw new Error(data.message || 'Failed to change password');
 
             toast.success('Password updated successfully!');
-            resetPassword();
+            passwordForm.reset();
         } catch (error) {
             console.error('Error changing password:', error);
             toast.error(error.message || 'Failed to change password');
@@ -172,87 +177,147 @@ const UserProfile = () => {
                     {/* Main Content Area */}
                     <main className="bg-white rounded-2xl p-8 shadow-sm">
                         {activeTab === 'profile' && (
-                            <form className="flex flex-col gap-6" onSubmit={handleSubmitProfile(handleUpdateProfile)}>
-                                <h2 className="mb-2 pb-4 border-b border-slate-100 text-xl font-bold text-slate-900">Personal Information</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <FormInput
-                                        label="First Name"
-                                        error={errorsProfile.firstName}
-                                        {...registerProfile('firstName')}
-                                    />
-                                    <FormInput
-                                        label="Last Name"
-                                        error={errorsProfile.lastName}
-                                        {...registerProfile('lastName')}
-                                    />
-                                </div>
-                                <div className="mb-0">
-                                    <label className="block mb-2 font-medium text-slate-700">Email Address</label>
-                                    <input type="email" defaultValue={user?.email} disabled className="w-full px-4 py-3 border border-slate-200 rounded-lg text-base bg-slate-50 text-slate-400 cursor-not-allowed outline-none" />
-                                    <span className="block mt-1.5 text-sm text-slate-400">Email cannot be changed</span>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <FormInput
-                                        label="Phone Number"
-                                        placeholder="+1 (555) 000-0000"
-                                        error={errorsProfile.phone}
-                                        {...registerProfile('phone')}
-                                    />
-                                    <FormInput
-                                        label="Location"
-                                        placeholder="City, Country"
-                                        error={errorsProfile.address}
-                                        {...registerProfile('address')}
-                                    />
-                                </div>
-                                <div className="mb-0">
-                                    <label className="block mb-2 font-medium text-slate-700">Professional Bio</label>
-                                    <textarea
-                                        rows="4"
-                                        placeholder="Tell us about yourself..."
-                                        className={`w-full px-4 py-3 border border-slate-300 rounded-lg text-base transition-colors outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-600/10 ${errorsProfile.bio ? 'border-red-500' : ''}`}
-                                        {...registerProfile('bio')}
-                                    />
-                                    {errorsProfile.bio && <div className="text-red-500 text-sm mt-1">{errorsProfile.bio.message}</div>}
-                                </div>
+                            <Form {...profileForm}>
+                                <form className="flex flex-col gap-6" onSubmit={profileForm.handleSubmit(handleUpdateProfile)}>
+                                    <h2 className="mb-2 pb-4 border-b border-slate-100 text-xl font-bold text-slate-900">Personal Information</h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="firstName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>First Name</FormLabel>
+                                                    <FormControl>
+                                                        <Input {...field} placeholder="First Name" />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="lastName"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Last Name</FormLabel>
+                                                    <FormControl>
+                                                        <Input {...field} placeholder="Last Name" />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <div className="mb-0">
+                                        <FormLabel className="block mb-2 text-slate-700">Email Address</FormLabel>
+                                        <Input type="email" defaultValue={user?.email} disabled className="bg-slate-50 text-slate-400 cursor-not-allowed" />
+                                        <span className="block mt-1.5 text-sm text-slate-400">Email cannot be changed</span>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="phone"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Phone Number</FormLabel>
+                                                    <FormControl>
+                                                        <Input {...field} placeholder="+1 (555) 000-0000" />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="address"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Location</FormLabel>
+                                                    <FormControl>
+                                                        <Input {...field} placeholder="City, Country" />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                    <div>
+                                        <FormField
+                                            control={profileForm.control}
+                                            name="bio"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Professional Bio</FormLabel>
+                                                    <FormControl>
+                                                        <Textarea {...field} placeholder="Tell us about yourself..." className="resize-none" rows={4} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
 
-                                <div className="flex justify-end gap-4 mt-4 pt-5 border-t border-slate-50">
-                                    <button type="button" className="px-6 py-3 bg-white border border-slate-300 text-slate-500 rounded-lg font-semibold cursor-pointer transition-all hover:bg-slate-50" onClick={() => resetProfile()}>Cancel</button>
-                                    <button type="submit" className="px-8 py-3 bg-indigo-600 border-none text-white rounded-lg font-semibold flex items-center gap-2 cursor-pointer transition-all hover:bg-indigo-700 hover:-translate-y-px shadow-lg disabled:opacity-70 disabled:cursor-not-allowed" disabled={isSubmittingProfile}>
-                                        <FaSave /> {isSubmittingProfile ? 'Saving...' : 'Save Changes'}
-                                    </button>
-                                </div>
-                            </form>
+                                    <div className="flex justify-end gap-4 mt-4 pt-5 border-t border-slate-50">
+                                        <Button variant="outline" type="button" onClick={() => profileForm.reset()}>Cancel</Button>
+                                        <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700" disabled={profileForm.formState.isSubmitting}>
+                                            <FaSave className="mr-2" /> {profileForm.formState.isSubmitting ? 'Saving...' : 'Save Changes'}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </Form>
                         )}
 
                         {activeTab === 'password' && (
-                            <form className="flex flex-col gap-6" onSubmit={handleSubmitPassword(handleChangePassword)}>
-                                <h2 className="mb-2 pb-4 border-b border-slate-100 text-xl font-bold text-slate-900">Change Password</h2>
-                                <FormInput
-                                    label="Current Password"
-                                    type="password"
-                                    error={errorsPassword.currentPassword}
-                                    {...registerPassword('currentPassword')}
-                                />
-                                <FormInput
-                                    label="New Password"
-                                    type="password"
-                                    error={errorsPassword.newPassword}
-                                    {...registerPassword('newPassword')}
-                                />
-                                <FormInput
-                                    label="Confirm New Password"
-                                    type="password"
-                                    error={errorsPassword.confirmPassword}
-                                    {...registerPassword('confirmPassword')}
-                                />
-                                <div className="flex justify-end gap-4 mt-4 pt-5 border-t border-slate-50">
-                                    <button type="button" className="px-6 py-3 bg-white border border-slate-300 text-slate-500 rounded-lg font-semibold cursor-pointer transition-all hover:bg-slate-50" onClick={() => resetPassword()}>Cancel</button>
-                                    <button type="submit" className="px-8 py-3 bg-indigo-600 border-none text-white rounded-lg font-semibold flex items-center gap-2 cursor-pointer transition-all hover:bg-indigo-700 hover:-translate-y-px shadow-lg disabled:opacity-70 disabled:cursor-not-allowed" disabled={isSubmittingPassword}>
-                                        <FaSave /> {isSubmittingPassword ? 'Updating...' : 'Update Password'}
-                                    </button>
-                                </div>
-                            </form>
+                            <Form {...passwordForm}>
+                                <form className="flex flex-col gap-6" onSubmit={passwordForm.handleSubmit(handleChangePassword)}>
+                                    <h2 className="mb-2 pb-4 border-b border-slate-100 text-xl font-bold text-slate-900">Change Password</h2>
+                                    <FormField
+                                        control={passwordForm.control}
+                                        name="currentPassword"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Current Password</FormLabel>
+                                                <FormControl>
+                                                    <Input type="password" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={passwordForm.control}
+                                        name="newPassword"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>New Password</FormLabel>
+                                                <FormControl>
+                                                    <Input type="password" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={passwordForm.control}
+                                        name="confirmPassword"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Confirm New Password</FormLabel>
+                                                <FormControl>
+                                                    <Input type="password" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <div className="flex justify-end gap-4 mt-4 pt-5 border-t border-slate-50">
+                                        <Button variant="outline" type="button" onClick={() => passwordForm.reset()}>Cancel</Button>
+                                        <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700" disabled={passwordForm.formState.isSubmitting}>
+                                            <FaSave className="mr-2" /> {passwordForm.formState.isSubmitting ? 'Updating...' : 'Update Password'}
+                                        </Button>
+                                    </div>
+                                </form>
+                            </Form>
                         )}
                     </main>
                 </div>

@@ -1,12 +1,20 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from 'joi';
-import FormInput from '../../../components/FormInput/FormInput.jsx';
-import PasswordInput from '../../../components/PasswordInput/PasswordInput.jsx';
-import '../../../css/user_authentication/auth.css';
+import { Button } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 const ForgotPassword = () => {
   const [step, setStep] = useState(1); // 1: email, 2: otp, 3: new password
@@ -35,29 +43,19 @@ const ForgotPassword = () => {
   });
 
   // Forms
-  const {
-    register: registerEmail,
-    handleSubmit: handleSubmitEmail,
-    formState: { errors: errorsEmail, isSubmitting: isSubmittingEmail }
-  } = useForm({
-    resolver: joiResolver(emailSchema)
+  const emailForm = useForm({
+    resolver: joiResolver(emailSchema),
+    defaultValues: { email: '' }
   });
 
-  const {
-    register: registerOtp,
-    handleSubmit: handleSubmitOtp,
-    formState: { errors: errorsOtp, isSubmitting: isSubmittingOtp },
-    reset: resetOtp
-  } = useForm({
-    resolver: joiResolver(otpSchema)
+  const otpForm = useForm({
+    resolver: joiResolver(otpSchema),
+    defaultValues: { otp: '' }
   });
 
-  const {
-    handleSubmit: handleSubmitPassword,
-    control: controlPassword,
-    formState: { errors: errorsPassword, isSubmitting: isSubmittingPassword }
-  } = useForm({
-    resolver: joiResolver(passwordSchema)
+  const passwordForm = useForm({
+    resolver: joiResolver(passwordSchema),
+    defaultValues: { newPassword: '', confirmPassword: '' }
   });
 
   // Handlers
@@ -140,126 +138,130 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Forgot Password</h2>
+    <div className="flex items-center justify-center min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Forgot Password</CardTitle>
+          <CardDescription className="text-center">
+            {step === 1 && "Enter your email address to receive an OTP"}
+            {step === 2 && "Enter the OTP sent to your email"}
+            {step === 3 && "Set your new password"}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {step === 1 && (
+            <Form {...emailForm}>
+              <form onSubmit={emailForm.handleSubmit(handleSendOTP)} className="space-y-4">
+                <FormField
+                  control={emailForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="name@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={sendingOtp || emailForm.formState.isSubmitting}>
+                  {sendingOtp || emailForm.formState.isSubmitting ? 'Sending OTP...' : 'Send OTP'}
+                </Button>
+              </form>
+            </Form>
+          )}
 
-        {step === 1 && (
-          <>
-            <p className="forgot-password-text">Enter your email address and we'll send you an OTP to reset your password.</p>
-            <form onSubmit={handleSubmitEmail(handleSendOTP)}>
-              <FormInput
-                label="Email"
-                type="email"
-                placeholder="Enter your email"
-                error={errorsEmail.email}
-                {...registerEmail('email')}
-              />
-              <button type="submit" disabled={sendingOtp || isSubmittingEmail}>
-                {sendingOtp || isSubmittingEmail ? 'Sending OTP...' : 'Send OTP'}
-              </button>
-            </form>
-          </>
-        )}
+          {step === 2 && (
+            <Form {...otpForm}>
+              <form onSubmit={otpForm.handleSubmit(handleVerifyOTP)} className="space-y-4">
+                <div className="text-center text-sm text-slate-500 mb-4">
+                  Enter the 6-digit OTP sent to <strong>{email}</strong>
+                </div>
+                <FormField
+                  control={otpForm.control}
+                  name="otp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>OTP Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123456" maxLength={6} className="text-center text-lg tracking-widest" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-        {step === 2 && (
-          <>
-            <p className="forgot-password-text">Enter the 6-digit OTP sent to your email.</p>
-            <form onSubmit={handleSubmitOtp(handleVerifyOTP)}>
-              <FormInput
-                label="OTP"
-                type="text"
-                placeholder="Enter 6-digit OTP"
-                maxLength="6"
-                error={errorsOtp.otp}
-                {...registerOtp('otp')}
-              />
-              <small className="otp-hint" style={{ display: 'block', marginTop: '-15px', marginBottom: '20px' }}>
-                Check your email for the OTP code.
-              </small>
-
-              <div className="form-actions">
-                <button type="button" className="btn-secondary" onClick={() => setStep(1)}>
-                  Back
-                </button>
-                <button type="submit" disabled={loading || isSubmittingOtp}>
-                  {loading || isSubmittingOtp ? 'Verifying...' : 'Verify OTP'}
+                <div className="flex gap-3 pt-2">
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => setStep(1)}>
+                    Back
+                  </Button>
+                  <Button type="submit" className="flex-1 bg-indigo-600 hover:bg-indigo-700" disabled={loading || otpForm.formState.isSubmitting}>
+                    {loading || otpForm.formState.isSubmitting ? 'Verifying...' : 'Verify OTP'}
+                  </Button>
+                </div>
+              </form>
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  className="text-sm text-indigo-600 hover:text-indigo-500 font-medium disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-0 cursor-pointer"
+                  onClick={() => handleSendOTP({ email })}
+                  disabled={sendingOtp}
+                >
+                  {sendingOtp ? 'Sending...' : 'Resend OTP'}
                 </button>
               </div>
-            </form>
-            <button
-              type="button"
-              className="btn-resend-otp"
-              onClick={() => handleSendOTP({ email })}
-              disabled={sendingOtp}
-            >
-              {sendingOtp ? 'Sending...' : 'Resend OTP'}
-            </button>
-          </>
-        )}
+            </Form>
+          )}
 
-        {step === 3 && (
-          <>
-            <p className="forgot-password-text">Enter your new password.</p>
-            <form onSubmit={handleSubmitPassword(handleResetPassword)}>
-              <div className="form-group">
-                <label>New Password</label>
-                <Controller
+          {step === 3 && (
+            <Form {...passwordForm}>
+              <form onSubmit={passwordForm.handleSubmit(handleResetPassword)} className="space-y-4">
+                <FormField
+                  control={passwordForm.control}
                   name="newPassword"
-                  control={controlPassword}
                   render={({ field }) => (
-                    <PasswordInput
-                      {...field}
-                      placeholder="Enter your password"
-                      required
-                      minLength="6"
-                      showToggle={false}
-                      className={errorsPassword.newPassword ? 'is-invalid' : ''}
-                    />
+                    <FormItem>
+                      <FormLabel>New Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Enter new password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
-                {errorsPassword.newPassword && (
-                  <div className="error-message inline">{errorsPassword.newPassword.message}</div>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label>Confirm Password</label>
-                <Controller
+                <FormField
+                  control={passwordForm.control}
                   name="confirmPassword"
-                  control={controlPassword}
                   render={({ field }) => (
-                    <PasswordInput
-                      {...field}
-                      placeholder="Confirm your password"
-                      required
-                      minLength="6"
-                      showToggle={false}
-                      className={errorsPassword.confirmPassword ? 'is-invalid' : ''}
-                    />
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Confirm new password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
-                {errorsPassword.confirmPassword && (
-                  <div className="error-message inline">{errorsPassword.confirmPassword.message}</div>
-                )}
-              </div>
-
-              <div className="form-actions">
-                <button type="button" className="btn-secondary" onClick={() => setStep(2)}>
-                  Back
-                </button>
-                <button type="submit" disabled={loading || isSubmittingPassword}>
-                  {loading || isSubmittingPassword ? 'Resetting...' : 'Reset Password'}
-                </button>
-              </div>
-            </form>
-          </>
-        )}
-
-        <p className="auth-link">
-          Remember your password? <Link to="/login">Login</Link>
-        </p>
-      </div>
+                <div className="flex gap-3 pt-2">
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => setStep(2)}>
+                    Back
+                  </Button>
+                  <Button type="submit" className="flex-1 bg-indigo-600 hover:bg-indigo-700" disabled={loading || passwordForm.formState.isSubmitting}>
+                    {loading || passwordForm.formState.isSubmitting ? 'Resetting...' : 'Reset Password'}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          )}
+        </CardContent>
+        <CardFooter className="flex justify-center text-sm text-slate-500">
+          Remember your password?{' '}
+          <Link to="/login" className="ml-1 text-indigo-600 hover:text-indigo-500 font-medium">
+            Login
+          </Link>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

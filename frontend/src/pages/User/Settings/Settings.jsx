@@ -1,19 +1,27 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from 'joi';
-import FormInput from '../../../components/FormInput/FormInput';
-import PasswordInput from '../../../components/PasswordInput/PasswordInput';
 import { useAuth } from '../../../context/AuthContext';
+import { Button } from "@/components/ui/button"
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 
 
 const Settings = () => {
     const { refreshUser } = useAuth();
     const [searchParams, setSearchParams] = useSearchParams();
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'password');
-    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         const tab = searchParams.get('tab');
@@ -47,37 +55,33 @@ const Settings = () => {
     });
 
     // Forms
-    const {
-        control: controlPassword,
-        handleSubmit: handleSubmitPassword,
-        reset: resetPasswordForm,
-        formState: { errors: errorsPassword, isSubmitting: isSubmittingPassword }
-    } = useForm({
-        resolver: joiResolver(passwordSchema)
+    const passwordForm = useForm({
+        resolver: joiResolver(passwordSchema),
+        defaultValues: {
+            currentPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+        }
     });
 
-    const {
-        register: registerEmail,
-        control: controlEmail,
-        handleSubmit: handleSubmitEmail,
-        reset: resetEmailForm,
-        formState: { errors: errorsEmail, isSubmitting: isSubmittingEmail }
-    } = useForm({
-        resolver: joiResolver(emailSchema)
+    const emailForm = useForm({
+        resolver: joiResolver(emailSchema),
+        defaultValues: {
+            newEmail: '',
+            password: ''
+        }
     });
 
-    const {
-        register: registerDelete,
-        control: controlDelete,
-        handleSubmit: handleSubmitDelete,
-        formState: { errors: errorsDelete, isSubmitting: isSubmittingDelete }
-    } = useForm({
-        resolver: joiResolver(deleteSchema)
+    const deleteForm = useForm({
+        resolver: joiResolver(deleteSchema),
+        defaultValues: {
+            password: '',
+            confirmDelete: ''
+        }
     });
 
     // Handlers
     const handleChangePassword = async (values) => {
-        setSubmitting(true);
         try {
             const token = localStorage.getItem('token');
             const response = await fetch('http://localhost:5000/api/user/change-password', {
@@ -92,20 +96,17 @@ const Settings = () => {
             const data = await response.json();
             if (response.ok) {
                 toast.success('Password changed successfully!');
-                resetPasswordForm();
+                passwordForm.reset();
             } else {
                 toast.error(data.message || 'Failed to change password');
             }
         } catch (error) {
             console.error('Error changing password:', error);
             toast.error('An error occurred');
-        } finally {
-            setSubmitting(false);
         }
     };
 
     const handleUpdateEmail = async (values) => {
-        setSubmitting(true);
         try {
             const token = localStorage.getItem('token');
             const response = await fetch('http://localhost:5000/api/user/update-email', {
@@ -121,15 +122,13 @@ const Settings = () => {
             if (response.ok) {
                 toast.success('Email updated successfully!');
                 refreshUser();
-                resetEmailForm();
+                emailForm.reset();
             } else {
                 toast.error(data.message || 'Failed to update email');
             }
         } catch (error) {
             console.error('Error updating email:', error);
             toast.error('An error occurred');
-        } finally {
-            setSubmitting(false);
         }
     };
 
@@ -138,7 +137,6 @@ const Settings = () => {
             return;
         }
 
-        setSubmitting(true);
         try {
             const token = localStorage.getItem('token');
             const response = await fetch('http://localhost:5000/api/user/account', {
@@ -154,7 +152,7 @@ const Settings = () => {
                 toast.success('Account deleted successfully. We\'re sorry to see you go.');
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
-                window.location.href = '/login';
+                navigate('/login');
             } else {
                 const data = await response.json();
                 toast.error(data.message || 'Failed to delete account');
@@ -162,8 +160,6 @@ const Settings = () => {
         } catch (error) {
             console.error('Error deleting account:', error);
             toast.error('An error occurred');
-        } finally {
-            setSubmitting(false);
         }
     };
 
@@ -199,59 +195,52 @@ const Settings = () => {
                         <div>
                             <h2 className="text-2xl font-bold text-slate-900 mb-2">Change Password</h2>
                             <p className="text-slate-500 text-sm mb-8">Recommended for account security. Avoid using same passwords as other accounts.</p>
-                            <form onSubmit={handleSubmitPassword(handleChangePassword)} className="flex flex-col gap-6 max-w-[500px]">
-                                <div className="mb-0">
-                                    <label className="block mb-2 font-medium text-slate-700">Current Password</label>
-                                    <Controller
+                            <Form {...passwordForm}>
+                                <form onSubmit={passwordForm.handleSubmit(handleChangePassword)} className="flex flex-col gap-6 max-w-[500px]">
+                                    <FormField
+                                        control={passwordForm.control}
                                         name="currentPassword"
-                                        control={controlPassword}
                                         render={({ field }) => (
-                                            <PasswordInput
-                                                {...field}
-                                                placeholder="Enter current password"
-                                                showToggle={false}
-                                                className={errorsPassword.currentPassword ? 'border-red-500' : ''}
-                                            />
+                                            <FormItem>
+                                                <FormLabel>Current Password</FormLabel>
+                                                <FormControl>
+                                                    <Input type="password" placeholder="Enter current password" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
                                         )}
                                     />
-                                    {errorsPassword.currentPassword && <div className="text-red-500 text-sm mt-1">{errorsPassword.currentPassword.message}</div>}
-                                </div>
-                                <div className="mb-0">
-                                    <label className="block mb-2 font-medium text-slate-700">New Password</label>
-                                    <Controller
+                                    <FormField
+                                        control={passwordForm.control}
                                         name="newPassword"
-                                        control={controlPassword}
                                         render={({ field }) => (
-                                            <PasswordInput
-                                                {...field}
-                                                placeholder="Enter new password"
-                                                showToggle={false}
-                                                className={errorsPassword.newPassword ? 'border-red-500' : ''}
-                                            />
+                                            <FormItem>
+                                                <FormLabel>New Password</FormLabel>
+                                                <FormControl>
+                                                    <Input type="password" placeholder="Enter new password" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
                                         )}
                                     />
-                                    {errorsPassword.newPassword && <div className="text-red-500 text-sm mt-1">{errorsPassword.newPassword.message}</div>}
-                                </div>
-                                <div className="mb-0">
-                                    <label className="block mb-2 font-medium text-slate-700">Confirm New Password</label>
-                                    <Controller
+                                    <FormField
+                                        control={passwordForm.control}
                                         name="confirmPassword"
-                                        control={controlPassword}
                                         render={({ field }) => (
-                                            <PasswordInput
-                                                {...field}
-                                                placeholder="Confirm new password"
-                                                showToggle={false}
-                                                className={errorsPassword.confirmPassword ? 'border-red-500' : ''}
-                                            />
+                                            <FormItem>
+                                                <FormLabel>Confirm New Password</FormLabel>
+                                                <FormControl>
+                                                    <Input type="password" placeholder="Confirm new password" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
                                         )}
                                     />
-                                    {errorsPassword.confirmPassword && <div className="text-red-500 text-sm mt-1">{errorsPassword.confirmPassword.message}</div>}
-                                </div>
-                                <button type="submit" className="mt-3 px-6 py-3.5 bg-indigo-600 text-white rounded-lg font-semibold cursor-pointer transition-all hover:bg-indigo-700 hover:-translate-y-0.5 hover:shadow-lg disabled:bg-slate-300 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none" disabled={submitting || isSubmittingPassword}>
-                                    {submitting || isSubmittingPassword ? 'Updating...' : 'Update Password'}
-                                </button>
-                            </form>
+                                    <Button type="submit" className="mt-3 bg-indigo-600 hover:bg-indigo-700" disabled={passwordForm.formState.isSubmitting}>
+                                        {passwordForm.formState.isSubmitting ? 'Updating...' : 'Update Password'}
+                                    </Button>
+                                </form>
+                            </Form>
                         </div>
                     )}
 
@@ -259,34 +248,39 @@ const Settings = () => {
                         <div>
                             <h2 className="text-2xl font-bold text-slate-900 mb-2">Update Email</h2>
                             <p className="text-slate-500 text-sm mb-8">You will need to use the new email for future logins.</p>
-                            <form onSubmit={handleSubmitEmail(handleUpdateEmail)} className="flex flex-col gap-6 max-w-[500px]">
-                                <FormInput
-                                    label="New Email Address"
-                                    type="email"
-                                    placeholder="Enter new email address"
-                                    error={errorsEmail.newEmail}
-                                    {...registerEmail('newEmail')}
-                                />
-                                <div className="mb-0">
-                                    <label className="block mb-2 font-medium text-slate-700">Current Password</label>
-                                    <Controller
-                                        name="password"
-                                        control={controlEmail}
+                            <Form {...emailForm}>
+                                <form onSubmit={emailForm.handleSubmit(handleUpdateEmail)} className="flex flex-col gap-6 max-w-[500px]">
+                                    <FormField
+                                        control={emailForm.control}
+                                        name="newEmail"
                                         render={({ field }) => (
-                                            <PasswordInput
-                                                {...field}
-                                                placeholder="Enter password to confirm"
-                                                showToggle={false}
-                                                className={errorsEmail.password ? 'border-red-500' : ''}
-                                            />
+                                            <FormItem>
+                                                <FormLabel>New Email Address</FormLabel>
+                                                <FormControl>
+                                                    <Input type="email" placeholder="Enter new email address" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
                                         )}
                                     />
-                                    {errorsEmail.password && <div className="text-red-500 text-sm mt-1">{errorsEmail.password.message}</div>}
-                                </div>
-                                <button type="submit" className="mt-3 px-6 py-3.5 bg-indigo-600 text-white rounded-lg font-semibold cursor-pointer transition-all hover:bg-indigo-700 hover:-translate-y-0.5 hover:shadow-lg disabled:bg-slate-300 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none" disabled={submitting || isSubmittingEmail}>
-                                    {submitting || isSubmittingEmail ? 'Updating...' : 'Update Email'}
-                                </button>
-                            </form>
+                                    <FormField
+                                        control={emailForm.control}
+                                        name="password"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Current Password</FormLabel>
+                                                <FormControl>
+                                                    <Input type="password" placeholder="Enter password to confirm" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <Button type="submit" className="mt-3 bg-indigo-600 hover:bg-indigo-700" disabled={emailForm.formState.isSubmitting}>
+                                        {emailForm.formState.isSubmitting ? 'Updating...' : 'Update Email'}
+                                    </Button>
+                                </form>
+                            </Form>
                         </div>
                     )}
 
@@ -294,34 +288,39 @@ const Settings = () => {
                         <div>
                             <h2 className="text-2xl font-bold text-red-600 mb-2">Delete Account</h2>
                             <p className="text-slate-500 text-sm mb-8">Once you delete your account, there is no going back. Please be certain.</p>
-                            <form onSubmit={handleSubmitDelete(handleDeleteAccount)} className="flex flex-col gap-6 max-w-[500px]">
-                                <div className="mb-0">
-                                    <label className="block mb-2 font-medium text-slate-700">Current Password</label>
-                                    <Controller
+                            <Form {...deleteForm}>
+                                <form onSubmit={deleteForm.handleSubmit(handleDeleteAccount)} className="flex flex-col gap-6 max-w-[500px]">
+                                    <FormField
+                                        control={deleteForm.control}
                                         name="password"
-                                        control={controlDelete}
                                         render={({ field }) => (
-                                            <PasswordInput
-                                                {...field}
-                                                placeholder="Enter password to confirm"
-                                                showToggle={false}
-                                                className={errorsDelete.password ? 'border-red-500' : ''}
-                                            />
+                                            <FormItem>
+                                                <FormLabel>Current Password</FormLabel>
+                                                <FormControl>
+                                                    <Input type="password" placeholder="Enter password to confirm" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
                                         )}
                                     />
-                                    {errorsDelete.password && <div className="text-red-500 text-sm mt-1">{errorsDelete.password.message}</div>}
-                                </div>
-                                <FormInput
-                                    label='Type "DELETE" to confirm'
-                                    type="text"
-                                    placeholder="Type DELETE"
-                                    error={errorsDelete.confirmDelete}
-                                    {...registerDelete('confirmDelete')}
-                                />
-                                <button type="submit" className="mt-3 px-6 py-3.5 bg-red-600 text-white rounded-lg font-semibold cursor-pointer transition-all hover:bg-red-700 hover:-translate-y-0.5 hover:shadow-lg disabled:bg-slate-300 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none" disabled={submitting || isSubmittingDelete}>
-                                    {submitting || isSubmittingDelete ? 'Deleting...' : 'Permanently Delete Account'}
-                                </button>
-                            </form>
+                                    <FormField
+                                        control={deleteForm.control}
+                                        name="confirmDelete"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Type "DELETE" to confirm</FormLabel>
+                                                <FormControl>
+                                                    <Input type="text" placeholder="Type DELETE" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <Button type="submit" variant="destructive" className="mt-3" disabled={deleteForm.formState.isSubmitting}>
+                                        {deleteForm.formState.isSubmitting ? 'Deleting...' : 'Permanently Delete Account'}
+                                    </Button>
+                                </form>
+                            </Form>
                         </div>
                     )}
                 </div>

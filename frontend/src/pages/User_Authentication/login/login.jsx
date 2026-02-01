@@ -2,12 +2,20 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../context/AuthContext.jsx';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from 'joi';
-import FormInput from '../../../components/FormInput/FormInput.jsx';
-import PasswordInput from '../../../components/PasswordInput/PasswordInput.jsx';
-import '../../../css/user_authentication/auth.css';
+import { Button } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 const Login = () => {
   const [serverError, setServerError] = useState('');
@@ -19,12 +27,7 @@ const Login = () => {
     password: Joi.string().min(6).required().label('Password'),
   });
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors, isSubmitting },
-  } = useForm({
+  const form = useForm({
     resolver: joiResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -69,54 +72,68 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Login</h2>
-        {serverError && <div className="error-message">{serverError}</div>}
-
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <FormInput
-            label="Email"
-            type="email"
-            placeholder="Enter your email address"
-            error={errors.email}
-            {...register('email')}
-          />
-
-          <div className="form-group">
-            <label>Password</label>
-            <Controller
-              name="password"
-              control={control}
-              render={({ field }) => (
-                <PasswordInput
-                  {...field}
-                  placeholder="Enter your password (e.g., MyP@ssw0rd123)"
-                  required
-                  showToggle={false}
-                  className={errors.password ? 'is-invalid' : ''}
-                />
-              )}
-            />
-            {errors.password && (
-              <div className="error-message inline">{errors.password.message}</div>
-            )}
+    <div className="flex items-center justify-center min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md shadow-lg">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
+          <CardDescription className="text-center">
+            Enter your email and password to access your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {serverError && (
+            <div className="bg-red-50 text-red-500 text-sm p-3 rounded-md mb-4 border border-red-200">
+              {serverError}
+            </div>
+          )}
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="name@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Enter your password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? 'Logging in...' : 'Login'}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+        <CardFooter className="flex flex-col space-y-2 text-center text-sm text-slate-500">
+          <div>
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-indigo-600 hover:text-indigo-500 font-medium">
+              Sign up
+            </Link>
           </div>
-
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-
-        <div className="auth-links">
-          <p className="auth-link">
-            Don't have an account? <Link to="/signup">Sign up</Link>
-          </p>
-          <p className="auth-link">
-            <Link to="/forgot-password">Forgot Password?</Link>
-          </p>
-        </div>
-      </div>
+          <div>
+            <Link to="/forgot-password" className="text-indigo-600 hover:text-indigo-500 font-medium">
+              Forgot Password?
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

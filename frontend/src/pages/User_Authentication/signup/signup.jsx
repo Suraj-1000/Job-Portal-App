@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import Joi from 'joi';
-import FormInput from '../../../components/FormInput/FormInput.jsx';
-import PasswordInput from '../../../components/PasswordInput/PasswordInput.jsx';
-import '../../../css/user_authentication/auth.css';
+import { Button } from "@/components/ui/button"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 const Signup = () => {
   const [step, setStep] = useState(1); // 1: enter details, 2: verify OTP
@@ -36,12 +44,7 @@ const Signup = () => {
   });
 
   // Form hooks for Step 1
-  const {
-    register: registerDetails,
-    handleSubmit: handleSubmitDetails,
-    control: controlDetails,
-    formState: { errors: errorsDetails, isSubmitting: isSubmittingDetails },
-  } = useForm({
+  const detailsForm = useForm({
     resolver: joiResolver(detailsSchema),
     defaultValues: {
       firstName: '',
@@ -52,12 +55,7 @@ const Signup = () => {
   });
 
   // Form hooks for Step 2
-  const {
-    register: registerOtp,
-    handleSubmit: handleSubmitOtp,
-    formState: { errors: errorsOtp, isSubmitting: isSubmittingOtp },
-    reset: resetOtp
-  } = useForm({
+  const otpForm = useForm({
     resolver: joiResolver(otpSchema),
     defaultValues: {
       otp: '',
@@ -136,109 +134,140 @@ const Signup = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Sign Up</h2>
-        {serverError && <div className="error-message">{serverError}</div>}
+    <div className="flex items-center justify-center min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-lg shadow-lg">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Sign Up</CardTitle>
+          <CardDescription className="text-center">
+            create a new account to get started
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {serverError && (
+            <div className="bg-red-50 text-red-500 text-sm p-3 rounded-md mb-4 border border-red-200">
+              {serverError}
+            </div>
+          )}
 
-        {step === 1 && (
-          <>
-            <p className="forgot-password-text">Enter your details to create an account. We'll send you an OTP to verify your email.</p>
-            <form onSubmit={handleSubmitDetails(handleSendOTP)}>
-              <div className="form-row">
-                <FormInput
-                  label="First Name"
-                  placeholder="First Name"
-                  error={errorsDetails.firstName}
-                  {...registerDetails('firstName')}
-                />
-
-                <FormInput
-                  label="Last Name"
-                  placeholder="Last Name"
-                  error={errorsDetails.lastName}
-                  {...registerDetails('lastName')}
-                />
-              </div>
-
-              <div className="form-row">
-                <FormInput
-                  label="Email"
-                  type="email"
-                  placeholder="Email Address"
-                  error={errorsDetails.email}
-                  {...registerDetails('email')}
-                />
-
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label>Password</label>
-                  <Controller
-                    name="password"
-                    control={controlDetails}
+          {step === 1 && (
+            <Form {...detailsForm}>
+              <form onSubmit={detailsForm.handleSubmit(handleSendOTP)} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={detailsForm.control}
+                    name="firstName"
                     render={({ field }) => (
-                      <PasswordInput
-                        {...field}
-                        placeholder="Password"
-                        required
-                        minLength="6"
-                        showToggle={false}
-                        className={errorsDetails.password ? 'is-invalid' : ''}
-                      />
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="First Name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  {errorsDetails.password && (
-                    <div className="error-message inline">{errorsDetails.password.message}</div>
-                  )}
+                  <FormField
+                    control={detailsForm.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Last Name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              </div>
-              <button type="submit" disabled={sendingOtp || isSubmittingDetails}>
-                {sendingOtp || isSubmittingDetails ? 'Sending OTP...' : 'Send OTP'}
-              </button>
-            </form>
-          </>
-        )}
 
-        {step === 2 && (
-          <>
-            <p className="forgot-password-text">Enter the 6-digit OTP sent to your email to complete registration.</p>
-            <form onSubmit={handleSubmitOtp(handleVerifyOTP)}>
-              <FormInput
-                label="OTP"
-                type="text"
-                placeholder="Enter 6-digit OTP"
-                maxLength="6"
-                error={errorsOtp.otp}
-                {...registerOtp('otp')}
-              />
-              <small className="otp-hint" style={{ display: 'block', marginTop: '-15px', marginBottom: '20px' }}>Check your email ({formData.email}) for the OTP code.</small>
+                <FormField
+                  control={detailsForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="name@example.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <div className="form-actions">
-                <button type="button" className="btn-secondary" onClick={() => {
-                  setStep(1);
-                  resetOtp({ otp: '' });
-                }}>
-                  Back
+                <FormField
+                  control={detailsForm.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Create a password" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={sendingOtp || detailsForm.formState.isSubmitting}>
+                  {sendingOtp || detailsForm.formState.isSubmitting ? 'Sending OTP...' : 'Send OTP'}
+                </Button>
+              </form>
+            </Form>
+          )}
+
+          {step === 2 && (
+            <Form {...otpForm}>
+              <form onSubmit={otpForm.handleSubmit(handleVerifyOTP)} className="space-y-4">
+                <div className="text-center text-sm text-slate-500 mb-4">
+                  Enter the 6-digit OTP sent to <strong>{formData.email}</strong>
+                </div>
+                <FormField
+                  control={otpForm.control}
+                  name="otp"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>OTP Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123456" maxLength={6} className="text-center text-lg tracking-widest" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex gap-3 pt-2">
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => {
+                    setStep(1);
+                    otpForm.reset({ otp: '' });
+                  }}>
+                    Back
+                  </Button>
+                  <Button type="submit" className="flex-1 bg-indigo-600 hover:bg-indigo-700" disabled={loading || otpForm.formState.isSubmitting}>
+                    {loading || otpForm.formState.isSubmitting ? 'Verifying...' : 'Verify & Sign Up'}
+                  </Button>
+                </div>
+              </form>
+              <div className="mt-4 text-center">
+                <button
+                  type="button"
+                  className="text-sm text-indigo-600 hover:text-indigo-500 font-medium disabled:opacity-50 disabled:cursor-not-allowed bg-transparent border-0 cursor-pointer"
+                  onClick={() => handleSendOTP(formData)}
+                  disabled={sendingOtp}
+                >
+                  {sendingOtp ? 'Sending...' : 'Resend OTP'}
                 </button>
-                <button type="submit" disabled={loading || isSubmittingOtp}>
-                  {loading || isSubmittingOtp ? 'Verifying...' : 'Verify & Sign Up'}
-                </button>
               </div>
-            </form>
-            <button
-              type="button"
-              className="btn-resend-otp"
-              onClick={() => handleSendOTP(formData)}
-              disabled={sendingOtp}
-            >
-              {sendingOtp ? 'Sending...' : 'Resend OTP'}
-            </button>
-          </>
-        )}
-
-        <p className="auth-link">
-          Already have an account? <a href="/login">Login</a>
-        </p>
-      </div>
+            </Form>
+          )}
+        </CardContent>
+        <CardFooter className="flex justify-center text-sm text-slate-500">
+          Already have an account?{' '}
+          <Link to="/login" className="ml-1 text-indigo-600 hover:text-indigo-500 font-medium">
+            Login
+          </Link>
+        </CardFooter>
+      </Card>
     </div>
   );
 };
