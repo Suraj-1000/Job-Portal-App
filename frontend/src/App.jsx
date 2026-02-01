@@ -8,31 +8,31 @@ import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 
 // Import Pages
-import Login from './pages/User_Authentication/login/login';
-import Signup from './pages/User_Authentication/signup/signup';
-import ForgotPassword from './pages/User_Authentication/forgot-password/forgotpassword';
-import NotFound from './pages/NotFound/NotFound';
+import Login from './pages/user-authentication/login/login';
+import Signup from './pages/user-authentication/signup/signup';
+import ForgotPassword from './pages/user-authentication/forgot-password/forgotPassword';
+import NotFound from './pages/not-found/notFound';
 
 import AdminLayout from './layouts/AdminLayout';
 import StaffLayout from './layouts/StaffLayout';
 import UserLayout from './layouts/UserLayout';
-import AdminDashboard from './pages/Admin/Home/AdminDashboard';
-import StaffDashboard from './pages/Staff/Home/StaffDashboard';
-import UserManagement from './pages/Admin/Users/UserManagement';
-import JobManagement from './pages/Admin/Jobs/JobManagement';
-import CategorySetup from './pages/Admin/Categories/CategorySetup';
-import Applications from './pages/Admin/Applications/Applications';
-import Inquiries from './pages/Admin/Inquries/Inquiries';
-import AdminProfile from './pages/Admin/Profile/AdminProfile';
+import AdminDashboard from './pages/admin/home/adminDashboard';
+import StaffDashboard from './pages/staff/home/staffDashboard';
+import UserManagement from './pages/admin/users/userManagement';
+import JobManagement from './pages/admin/jobs/jobManagement';
+import CategorySetup from './pages/admin/categories/categorySetup';
+import Applications from './pages/admin/applications/applications';
+import Inquiries from './pages/admin/inquiries/inquiries';
+import AdminProfile from './pages/admin/profile/adminProfile';
 
 // User Pages
-import Home from './pages/User/Home/Home';
-import FindJobs from './pages/User/FindJobs/FindJobs';
-import AboutUs from './pages/User/AboutUs/AboutUs';
-import ContactUs from './pages/User/ContactUs/ContactUs';
-import UserProfile from './pages/User/Profile/UserProfile';
-import AppliedJobs from './pages/User/AppliedJobs/AppliedJobs';
-import FavoriteJobs from './pages/User/FavoriteJobs/FavoriteJobs';
+import Home from './pages/user/home/home';
+import FindJobs from './pages/user/find-jobs/findJobs';
+import AboutUs from './pages/user/about-us/aboutUs';
+import ContactUs from './pages/user/contact-us/contactUs';
+import UserProfile from './pages/user/profile/userProfile';
+import AppliedJobs from './pages/user/applied-jobs/appliedJobs';
+import FavoriteJobs from './pages/user/favorite-jobs/favoriteJobs';
 
 
 function App() {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaSearch, FaEnvelopeOpen, FaReply, FaTrash } from 'react-icons/fa';
-import './Inquiries.css'; // We will create this
+import './inquiries.css'; // We will create this
 
 const Inquiries = () => {
     const [inquiries, setInquiries] = useState([]);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaSearch, FaEye, FaCheck, FaTimes, FaDownload } from 'react-icons/fa';
-import './Applications.css'; // We will create this
+import './applications.css'; // We will create this
 
 const Applications = () => {
     const [applications, setApplications] = useState([]);
